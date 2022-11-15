@@ -1,30 +1,62 @@
 import { motion } from "framer-motion";
 import styled from "styled-components";
+import {  useNavigate } from "react-router-dom";
 
-import React from "react";
+import React,{useEffect} from "react";
+import { password } from "../password";
 
 import Nav from '../comps/navlogin'
 import bgimg from '../img/loginimg_desktop.png' 
 
 const formBgColor = "#F8FFFA"
 const darkColor = "#14532D"
-const darkenColor = "#092816"
+const darkenColor = "#0A2715"
 
+
+
+
+//to rectify else case 
+const changeInput = () =>{
+    document.getElementById('password').classList.remove("redded")  
+}
 const Login = () =>{
+    //set navigate const
+const navigate= useNavigate()
+//prevent going back
+useEffect(()=>{
+    window.addEventListener('popstate', function(event) {
+        navigate('/')
+            });
+})
 
+//to login into home page
+const loginFunc = (e) =>{
+    //prevent form default behavior
+    e.preventDefault();
+    //check if password is equal to password
+   let inputValue = document.getElementById('password').value
+   if(inputValue!==password){
+    document.getElementById('password').classList.add('redded')
+    document.getElementById('password').value=""
+    document.getElementById('password').placeholder="Incorrect password"
+   }else{
+//navigate to home
+navigate('/home')
+   }
+}
 
     return(
         <StyledLogin>
 <Nav/>
 <Main>
     <div className="form-section">
-<form action="submit">
+<form action="submit" onSubmit={loginFunc}>
 <div className="title">
     <h4>sign in</h4>
     <span/>
 </div>
 
-<input type="password" placeholder="Password"/>
+<input type="password" placeholder="Password" id="password" onClick={changeInput}/>
 
 <button>Login</button>
 </form>
@@ -41,9 +73,10 @@ width:100% ;
 `
 const Main = styled(motion.div)`
 width:100% ;
-height:973px ;
+height:100vh;
 background-image:linear-gradient( rgba(20,83,45,.65), rgba(20,83,45,.65)),url(${bgimg}) ;
 background-size:cover ;
+background-position:bottom ;
 display:flex ;
 justify-content:flex-end ;
 .form-section{
@@ -63,6 +96,15 @@ padding: 0px;
 gap: 76px;
 width: 471px;
 
+/*--Input error class--*/
+.redded{
+    border:2px solid red ;
+    color:red ;
+    content:"" ;
+    &::placeholder{
+        color: red;
+    }
+}
 
 /*--Form elements--*/
 .title{
@@ -102,6 +144,7 @@ input{
 }
 
 button{
+    cursor: pointer;
     text-transform:uppercase ;
     width:100% ;
     height:60px ;

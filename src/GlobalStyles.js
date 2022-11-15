@@ -25,17 +25,17 @@ const GlobalStyles = createGlobalStyle`
   @font-face {
     font-family: 'Helvetica Neu Bold';
     src: local('Helvetica Neu Bold'), url(${HelveticaNeuBold}) format('truetype');
-    font-weight:700 ;
+    font-weight:normal ;
   }
   @font-face {
     font-family: 'HelveticaNeue Thin';
     src: local('HelveticaNeue Thin'), url(${HelveticaNeuThin}) format('truetype');
-    font-weight:100 ;
+    font-weight:normal ;
   }
   @font-face {
     font-family: 'HelveticaNeue Medium';
     src: local('HelveticaNeue Medium'), url(${HelveticaNeuMedium}) format('truetype');
-    font-weight:500 ;
+    font-weight:normal ;
   }
 
 
@@ -51,7 +51,7 @@ font-family:'HelveticaNeue Medium', sans-serif ;
 }
   }
 
-  input{
+  input, select{
     &:focus{
       outline:none;
     }
