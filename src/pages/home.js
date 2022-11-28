@@ -6,8 +6,9 @@ import Nav2 from "../comps/navhome";
 import welcomeImg from '../img/welcomeimg.png'
 import { HashLink } from 'react-router-hash-link';
 import {db} from '../firebase'
-import {collection, addDoc, Timestamp} from 'firebase/firestore'
-import { useState } from "react";
+import {collection, addDoc, Timestamp,query, orderBy,onSnapshot, doc, updateDoc, deleteDoc} from 'firebase/firestore'
+import { useState, useEffect} from "react";
+import { async } from "@firebase/util";
 
 
 
@@ -18,7 +19,12 @@ const formBgColor = "#F8FFFA"
 const darkColor = "#14532D"
 const darkenColor = "#0A2715"
 
+
+
 const Home = ()=>{
+ //state for records
+ const [records, setRecords] = useState([])
+   
     //TO handle table section
     const tableRef = useRef(null);
 
@@ -35,8 +41,34 @@ const Home = ()=>{
         document.getElementById('alert').style.display="flex"
     }
 
+  
+
+
+  
+
     //State
-    const [period, setPeriod] = useState(1)
+    const [period, setPeriod] = useState(0)
+    //to check if records is filled
+    const [isFetched, setIsFetched] = useState(false);
+    //to get period number
+
+ /* function to get all records from firestore in realtime */ 
+
+ useEffect(() => {
+        const q = query(collection(db, 'records'), orderBy('date', 'asc'))
+        onSnapshot(q, (querySnapshot) => {
+          setRecords(querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            data: doc.data()
+          })))
+          setIsFetched(true)
+        })
+       
+  },[])
+
+
+
+
     //create collection records and add d
     const recordsRef = collection(db, 'records');
 //to put offering data
@@ -52,6 +84,7 @@ try{
        let offering_date= new Date(document.getElementById('date-offering').value)
        let amount= parseInt(document.getElementById('amount').value)
        let type= document.getElementById('type-offering').value
+       let payment=  document.getElementById('payment-offering').value
 
        const record =await addDoc(recordsRef, {
         created: Timestamp.now(),
@@ -61,7 +94,8 @@ try{
         week:offering_week,
         date:offering_date,
         amount:amount,
-        type:type
+        type:type,
+        payment_type:payment
       })
      
       //clear up data after
@@ -70,6 +104,7 @@ try{
       document.getElementById('date-offering').value=""
       document.getElementById('amount').value=""
       document.getElementById('type-offering').selectedIndex=0
+      document.getElementById('payment-offering').selectedIndex=0
  
 }catch{
     alert("Error ooo")
@@ -90,6 +125,7 @@ try{
        let women= parseInt(document.getElementById('women').value)
        let children= parseInt(document.getElementById('children').value)
        let newcomer= parseInt(document.getElementById('newcomers').value)
+       let convert= parseInt(document.getElementById('converts').value)
        let attendance_date= new Date(document.getElementById('date-attendance').value)
        
 
@@ -103,6 +139,7 @@ try{
         men:men,
         women:women,
         children:children,
+        convert:convert,
         newcomer:newcomer
       })
 
@@ -114,6 +151,7 @@ try{
       document.getElementById('women').value=""
       document.getElementById('children').value=""
       document.getElementById('newcomers').value=""
+      document.getElementById('converts').value=""
       
      
  
@@ -121,6 +159,359 @@ try{
     alert("Error ooo")
 }
     }
+
+    //Edit section
+    let specEvent=""
+    let specDate=""
+    let specSection=""
+    let denoteId=""
+ 
+    const editStartFunction = () =>{
+        document.getElementById('specifier').style.display="flex"
+    }
+    const editTableFunction = () =>{
+        let specDownEvent = document.getElementById('specEvent').value
+        specEvent=document.getElementById('specEvent').value
+        let specDownDate = new Date(document.getElementById('specDate').value)
+        specDate=new Date(document.getElementById('specDate').value).toLocaleDateString()
+        specSection=document.getElementById('specSection').value
+        document.getElementById('specifier').style.display="none"
+
+        //to set deletion id
+        for(let x=0;x<records.length;x++){
+            let testDate = records[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records[x].data.event
+            let testSection = records[x].data.section
+            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                denoteId=records[x].id
+                break
+            }
+           
+        }
+        if(specSection==="offerings"){
+            //clear inputs
+            document.getElementById('specEvent').selectedIndex=0
+            document.getElementById('specDate').value=""
+            document.getElementById('specSection').selectedIndex=0
+            //setup pre data
+            let id
+            for(let x=0;x<records.length;x++){
+                let testDate = records[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records[x].data.event
+                let testSection = records[x].data.section
+                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                    id=records[x].id
+                    break
+                }  
+            }
+            //to detern=mine index of select to set for event
+            let select=document.getElementById("worker-event").options
+            let select_length = select.length
+            let eventIndex
+            for(let x=0;x<select_length;x++){
+                if((select[x].text===specEvent)){
+                    eventIndex=x
+                    break
+                }
+            }
+            document.getElementById('worker-event').selectedIndex=eventIndex
+            //to detern=mine index of select to set for week
+            let week_select=document.getElementById("worker-week").options
+            let week_select_length = select.length
+            let weekIndex
+
+            for(let x=0;x<records.length;x++){
+                let recWeek=records[x].data.week
+                let isEqual = false
+                for(let x=0;x<week_select_length;x++){
+                if(parseInt(week_select[x].text)===recWeek){
+                    weekIndex=x
+                    isEqual=true
+                    break
+                }
+                if(isEqual===true){break}
+                }
+                
+            }
+            
+            document.getElementById('worker-week').selectedIndex=weekIndex
+              //set date
+              document.getElementById('worker-date').value=specDownDate.toISOString().substring(0,10)
+              //set amount
+
+              for(let x=0;x<records.length;x++){
+                let testDate = records[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records[x].data.event
+                let testSection = records[x].data.section
+                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                    document.getElementById('worker-amount').value=records[x].data.amount
+                    break
+                }
+               
+            }
+            //set offering type
+
+            for(let x=0;x<records.length;x++){
+                let testDate = records[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records[x].data.event
+                let testSection = records[x].data.section
+                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                    document.getElementById('worker-type').value=records[x].data.type
+                    break
+                }
+               
+            }
+
+            //set payment type
+
+            for(let x=0;x<records.length;x++){
+                let testDate = records[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records[x].data.event
+                let testSection = records[x].data.section
+                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                    document.getElementById('worker-payment').value=records[x].data.payment_type
+                    break
+                }
+               
+            }
+
+            //hide 
+            document.getElementById('worker').style.display="flex"
+        }
+        if(specSection==="attendance"){
+             //clear inputs
+             document.getElementById('specEvent').selectedIndex=0
+             document.getElementById('specDate').value=""
+             document.getElementById('specSection').selectedIndex=0
+         //to detern=mine index of select to set for event
+         let select=document.getElementById("worked-event").options
+         let select_length = select.length
+         let eventIndex
+         for(let x=0;x<select_length;x++){
+             if((select[x].text===specEvent)){
+                 eventIndex=x
+                 break
+             }
+         }
+         document.getElementById('worked-event').selectedIndex=eventIndex
+         //to detern=mine index of select to set for week
+         let week_select=document.getElementById("worked-week").options
+         let week_select_length = select.length
+         let weekIndex
+
+         for(let x=0;x<records.length;x++){
+             let recWeek=records[x].data.week
+             let isEqual = false
+             for(let x=0;x<week_select_length;x++){
+             if(parseInt(week_select[x].text)===recWeek){
+                 weekIndex=x
+                 isEqual=true
+                 break
+             }
+             if(isEqual===true){break}
+             }
+             
+         }
+         
+         document.getElementById('worked-week').selectedIndex=weekIndex
+           //set date
+           document.getElementById('worked-date').value=specDownDate.toISOString().substring(0,10)
+           //set men
+           for(let x=0;x<records.length;x++){
+             let testDate = records[x].data.date.toDate().toLocaleDateString()
+             let testEvent = records[x].data.event
+             let testSection = records[x].data.section
+             if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                 document.getElementById('worked-men').value=records[x].data.men
+                 break
+             }
+            
+         }
+          //set women
+          for(let x=0;x<records.length;x++){
+            let testDate = records[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records[x].data.event
+            let testSection = records[x].data.section
+            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                document.getElementById('worked-women').value=records[x].data.women
+                break
+            }
+           
+        }
+         //set children
+         for(let x=0;x<records.length;x++){
+            let testDate = records[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records[x].data.event
+            let testSection = records[x].data.section
+            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                document.getElementById('worked-children').value=records[x].data.children
+                break
+            }
+           
+        }
+         //set newcomer
+         for(let x=0;x<records.length;x++){
+            let testDate = records[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records[x].data.event
+            let testSection = records[x].data.section
+            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                document.getElementById('worked-newcomers').value=records[x].data.newcomer
+                break
+            }
+           
+        }
+        //set convert
+        for(let x=0;x<records.length;x++){
+            let testDate = records[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records[x].data.event
+            let testSection = records[x].data.section
+            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                document.getElementById('worked-converts').value=records[x].data.convert
+                break
+            }
+           
+        }
+
+
+ 
+
+
+
+
+            document.getElementById('worked').style.display="flex"
+        }
+    }
+    const editSubmitFunction = () =>{
+        if(specSection==="attendance"){
+            let id
+            for(let x=0;x<records.length;x++){
+                let testDate = records[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records[x].data.event
+                let testSection = records[x].data.section
+                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                    id=records[x].id
+                    break
+                }
+               
+            }
+           //update
+           const recordDocRef = doc(db, 'records', id)
+           try{
+             updateDoc(recordDocRef, {
+              event:document.getElementById('worked-event').value,
+              week:parseInt(document.getElementById('worked-week').value),
+              date:new Date(document.getElementById('worked-date').value),
+              men:parseInt(document.getElementById('worked-men').value),
+              women:parseInt(document.getElementById('worked-women').value),
+              children:parseInt(document.getElementById('worked-children').value),
+              newcomer:parseInt(document.getElementById('worked-newcomers').value),
+              convert:parseInt(document.getElementById('worked-converts').value)
+            })
+          } catch (err) {
+            alert(err)
+          }
+          //clear inputs
+          document.getElementById('worked-event').selectedIndex=0
+          document.getElementById('worked-week').selectedIndex=0
+          document.getElementById('worked-week').value=""
+          document.getElementById('worked-men').value=""
+          document.getElementById('worked-women').value=""
+          document.getElementById('worked-children').value=""
+          document.getElementById('worked-newcomers').value=""
+          document.getElementById('worked-converts').value=""
+
+          document.getElementById('worked').style.display="none"
+        }
+        if(specSection==="offerings"){
+            let id
+            for(let x=0;x<records.length;x++){
+                let testDate = records[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records[x].data.event
+                let testSection = records[x].data.section
+                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                    id=records[x].id
+                    break
+                }
+               
+            }
+           //update
+           const recordDocRef = doc(db, 'records', id)
+           try{
+             updateDoc(recordDocRef, {
+              event:document.getElementById('worker-event').value,
+              week:parseInt(document.getElementById('worker-week').value),
+              date:new Date(document.getElementById('worker-date').value),
+              amount:parseInt(document.getElementById('worker-amount').value),
+              type:document.getElementById('worker-type').value,
+              payment_type:document.getElementById('worker-payment').value
+            })
+          } catch (err) {
+            alert(err)
+          }
+          document.getElementById('worker-event').selectedIndex=0
+          document.getElementById('worker-week').selectedIndex=0
+          document.getElementById('worker-date').value=""
+          document.getElementById('worker-amount').value=""
+          document.getElementById('worker-type').selectedIndex=0
+          document.getElementById('worker-payment').selectedIndex=0
+          
+          document.getElementById('worker').style.display="none"
+        }
+    }
+    const closeSpecifier = () =>{
+          //clear inputs
+          document.getElementById('specEvent').selectedIndex=0
+          document.getElementById('specDate').value=""
+          document.getElementById('specSection').selectedIndex=0
+        document.getElementById('specifier').style.display="none"
+    }
+    const closeWork = () =>{
+        document.getElementById('deletion').style.display="flex" 
+        document.getElementById('worker').style.display="none"
+        document.getElementById('worked').style.display="none" 
+       
+    }
+
+    const toCloseAlert = () =>{
+        document.getElementById('deletion').style.display="none"   
+    }
+
+    const toDelete = async() =>{
+        const recordsDocRef = doc(db, 'records', denoteId)
+        try{
+            await deleteDoc(recordsDocRef)
+          } catch (err) {
+            alert(err)
+          }
+          document.getElementById('deletion').style.display="none"   
+    }
+    
+
+    //TO gET TOTAL AMOUNT FOR THE AMOUNT TYPE
+    const amountTotal = (name,week,periodves)=>{
+        let totalAmount=0
+        let length = records.length
+for(let x=0; x<length; x++){
+    let recName = records[x].data.type
+    let recAltName= records[x].data.payment_type
+    let recAmount = records[x].data.amount
+    let recWeek= records[x].data.week
+    let recPeriod= records[records.length-1].data.period
+    if(((name===recName) || (name===recAltName))&&(week===recWeek)&&(periodves===recPeriod)){
+totalAmount=totalAmount+recAmount
+    }
+}
+return totalAmount
+    }
+
+    //to get remit amount
+    const amountRemit = (name,week,periodves,percent)=>{
+        const amount = amountTotal(name, week,periodves)
+        const remit = (percent*amount)
+        return remit
+    }
+
+    //to update document
 
 
 
@@ -198,7 +589,63 @@ try{
   <option value="Gospel fund">Gospel fund</option>
   <option value="House fellowship offering">House fellowship offering</option>
   <option value="Sunday school">Sunday school</option>
-  <option value="Donation">Donation</option>
+  <option value="Alternate payment/donation">Alternative payment/donation</option>
+</select>
+</div>
+<div className="input">
+<h4>Payment type</h4>
+<select name="cars" id="payment-offering">
+<option value="volvo">--Please pick a payment type--</option>
+  <option value="Not donation">Not payment/donation</option>
+  <option value="African mission">African mission</option>
+  <option value="Annual report">Annual report</option>
+  <option value="Annual thanksgiving">Annual thanksgiving</option>
+  <option value="Audit S/F">Audit S/F</option>
+  <option value="Baptismal certificate">Baptismal certificate</option>
+  <option value="Building dev offering">Building dev offering</option>
+  <option value="Camp clearing">Camp clearing</option>
+  <option value="Children zeal">Children zeal</option>
+  <option value="Conference manual">Conference manual</option>
+  <option value="Congress program">Congress program</option>
+  <option value="Congress support">Congress support</option>
+  <option value="Congress thanksgiving">Congress thanksgiving</option>
+  <option value="Convention offering">Convention offering</option>
+  <option value="Convention prog">Convention prog</option>
+  <option value="Convention special thanksgiving">Convention special thanksgiving</option>
+  <option value="Convention support">Convention support</option>
+  <option value="Convention thanksgiving">Convention thanksgiving</option>
+  <option value="Counselor support">Counselor support</option>
+  <option value="Family weekend">Family weekend</option>
+  <option value="First born redemption">First born redemption</option>
+  <option value="GO anniversary thanksgiving">GO anniversary thanksgiving</option>
+  <option value="H/G service viewing centre offering">H/G service viewing centre offering</option>
+  <option value="Helps weekend">Helps weekend</option>
+  <option value="Holy communion offering">Holy communion offering</option>
+  <option value="Let's go a fishing">Let's go a fishing</option>
+  <option value="Marriage certificate">Marriage certificate</option>
+  <option value="Minister's conference">Minister's conference</option>
+  <option value="Minister's new auditorium offering">Minister's new auditorium offering</option>
+  <option value="Mission support">Mission support</option>
+  <option value="New auditorium">New auditorium</option>
+  <option value="Pledges/Vow/Covenant Seed">Pledges/Vow/Covenant Seed</option>
+  <option value="Project offering">Project offering</option>
+  <option value="Provincial convention support">Provincial convention support</option>
+  <option value="Province CSR support">Province CSR support</option>
+  <option value="Province programme offering">Province programme offering</option>
+  <option value="Radio and TV">Radio and TV</option>
+  <option value="RCCG Partner">RCCG Partner </option>
+  <option value="Regional contribution">Regional contribution</option>
+  <option value="Send Forth/ Pastors' welfare">Send Forth/ Pastors' welfare</option>
+  <option value="Special Holy Ghost Service support">Special Holy Ghost Service support</option>
+  <option value="Training weekend">Training weekend</option>
+  <option value="Convention volunteer">Convention volunteer</option>
+  <option value="Open Heaven Devotional">Open Heaven Devotional</option>
+  <option value="CSR support (Area HQ)">CSR support (Area HQ)</option>
+  <option value="RMF">RMF</option>
+  <option value="RUN Educational Fund">RUN Educational Fund</option>
+  <option value="Area levies (welfare)">Area levies (welfare)</option>
+  <option value="Area levies (Let's go a fishing)">Area levies (Let's go a fishing)</option>
+
 </select>
 </div>
 
@@ -260,6 +707,10 @@ try{
 <h4>Newcomers</h4>
 <input type="number" id="newcomers"/>
 </div>
+<div className="input">
+<h4>Converts</h4>
+<input type="number" id="converts"/>
+</div>
 
 
     </div>
@@ -281,7 +732,7 @@ try{
 <h4>to</h4>
 <input type="number" min="1" max="4"/>
 <button>load</button>
-<button>edit</button>
+<button onClick={editStartFunction}>edit</button>
     </div>
 
     <div className="table">
@@ -289,22 +740,24 @@ try{
 
 <table ref={tableRef}>
     <tbody>
-    <tr>
-            <th id="type">Attendance</th>
-        </tr>
+        <tr><td id="type">Offering</td></tr>
         <tr>
-            <th id="title">Week 1</th>
+            <td id="title">Week 1</td>
         </tr>
-        <tr>
-            <th>Heading 1</th>
-            <th>Heading 1</th>
-            <th>Heading 1</th>
-        </tr>
-        <tr>
-            <td>Unit</td>
-            <td>Unit</td>
-            <td>Unit</td>
-        </tr>
+<tr>
+    <th>Item Name</th>
+    <th>Amount</th>
+    <th>Remit percentage</th>
+    <th>Remittance</th>
+</tr>
+{isFetched &&
+    <tr className="tr">
+    <td>Congress thanksgiving</td>
+    <td>{amountTotal("Congress thanksgiving",1,records[records.length-1].data.period)}</td>
+    <td>100%</td>
+    <td>{amountRemit("Congress thanksgiving",1,records[records.length-1].data.period,1)}</td>
+</tr>
+}
     </tbody>
 </table>
 
@@ -323,12 +776,27 @@ try{
 <p>You are about to start a new financial period. Are you sure?</p>
 <div className="buttons">
     <button className="warning" onClick={hideAlert}>generate</button>
-    <button onClick={hideAlert}>start new period</button>
+    <button onClick={hideAlert}>no,go back</button>
 </div>
     </div>
 </div>
         </StyledAlert>
-        <StyledEdit id="edit">
+        <StyledAlert id="deletion">
+<div className="main">
+    <div className="flex">
+<h4>Start new period</h4>
+<p>You are about to delete this record. Are you sure?</p>
+<div className="buttons">
+    <button className="warning" onClick={toDelete}>yes, delete it</button>
+    <button onClick={toCloseAlert}>no, go back</button>
+</div>
+    </div>
+</div>
+        </StyledAlert>
+        {
+            isFetched &&
+            <>
+            <StyledEdit id="specifier">
 <div className="main">
     <div className="flex">
     <div className="title">
@@ -336,50 +804,251 @@ try{
     <span className="line"/>
     </div>
     <div className="form">
+<div className="inner">
 <div className="input">
 <h4>Event</h4>
-<select name="Event" id="event">
-  <option value="volvo">--Please pick an event type--</option>
-  <option value="saab">Sunday service</option>
-  <option value="saab">Sunday school</option>
-  <option value="saab">House fellowship</option>
-  <option value="saab">Tuesday service</option>
-  <option value="saab">Thursday service</option>
-  <option value="saab">Friday night vigil</option>
+<select name="Event" id="specEvent">
+  <option value="not valid">--Please pick an event type--</option>
+  <option value="Sunday service">Sunday service</option>
+  <option value="Sunday school">Sunday school</option>
+  <option value="House fellowship">House fellowship</option>
+  <option value="Tuesday service">Tuesday service</option>
+  <option value="Thursday service">Thursday service</option>
+  <option value="Friday night vigil">Friday night vigil</option>
+  <option value="No event, just records">No event, just records</option>
 </select>
+
 </div>
+
 <div className="input">
 <h4>Date</h4>
-<input type="date" />
+<input type="date" id="specDate"/>
 </div>
 <div className="input">
-<h4>Amount</h4>
-<input type="number" />
-</div>
-<div className="input">
-<h4>Offering type</h4>
-<select name="cars" id="cars">
-<option value="volvo">--Please pick an offering type--</option>
-  <option value="saab">General tithe</option>
-  <option value="mercedes">Minister's tithe</option>
-  <option value="audi">Sunday love offering</option>
-  <option value="audi">Thanksgiving</option>
-  <option value="audi">CRM</option>
-  <option value="audi">Children offering</option>
-  <option value="audi">First fruit</option>
-  <option value="audi">Gospel fund</option>
-  <option value="audi">House fellowship offering</option>
-  <option value="audi">Sunday school</option>
-  <option value="audi">Donation</option>
+<h4>Section</h4>
+<select name="Event" id="specSection">
+  <option value="not valid">--Please pick a section type--</option>
+  <option value="offerings">offerings</option>
+  <option value="attendance">attendance</option>
 </select>
+
+</div>
+
 </div>
 
     </div>
-<button>Submit</button>
+    <div className="buttons">
+    <button onClick={editTableFunction}>Submit</button>
+    <button className="redded" onClick={closeSpecifier}>Exit</button>
+    </div>
+
     
     </div>
 </div>
         </StyledEdit>
+        <StyledEdit id="worker">
+<div className="main">
+    <div className="flex">
+    <div className="title">
+    <h3>Edit</h3>
+    <span className="line"/>
+    </div>
+    <div className="form">
+<div className="inner">
+<div className="input">
+<h4>Event</h4>
+<select name="Event" id="worker-event">
+  <option value="not valid">--Please pick an event type--</option>
+  <option value="Sunday service">Sunday service</option>
+  <option value="Sunday school">Sunday school</option>
+  <option value="House fellowship">House fellowship</option>
+  <option value="Tuesday service">Tuesday service</option>
+  <option value="Thursday service">Thursday service</option>
+  <option value="Friday night vigil">Friday night vigil</option>
+  <option value="No event, just records">No event, just records</option>
+</select>
+
+</div>
+<div className="input">
+<h4>Week</h4>
+<select name="Event" id="worker-week">
+  <option value="not valid">--Please pick a week number--</option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+
+</select>
+
+</div>
+
+<div className="input">
+<h4>Date</h4>
+<input type="date" id="worker-date"/>
+</div>
+<div className="input">
+<h4>Amount</h4>
+<input type="number" id="worker-amount"/>
+</div>
+<div className="input">
+<h4>Offering type</h4>
+<select name="cars" id="worker-type">
+<option value="volvo">--Please pick an offering type--</option>
+  <option value="General tithe">General tithe</option>
+  <option value="Minister's tithe">Minister's tithe</option>
+  <option value="Sunday love offering">Sunday love offering</option>
+  <option value="Thanksgiving">Thanksgiving</option>
+  <option value="CRM">CRM</option>
+  <option value="Children offering">Children offering</option>
+  <option value="First fruit">First fruit</option>
+  <option value="Gospel fund">Gospel fund</option>
+  <option value="House fellowship offering">House fellowship offering</option>
+  <option value="Sunday school">Sunday school</option>
+  <option value="Alternate payment/donation">Alternative payment/donation</option>
+</select>
+</div>
+<div className="input">
+<h4>Payment type</h4>
+<select name="cars" id="worker-payment">
+<option value="volvo">--Please pick a payment type--</option>
+  <option value="Not donation">Not payment/donation</option>
+  <option value="African mission">African mission</option>
+  <option value="Annual report">Annual report</option>
+  <option value="Annual thanksgiving">Annual thanksgiving</option>
+  <option value="Audit S/F">Audit S/F</option>
+  <option value="Baptismal certificate">Baptismal certificate</option>
+  <option value="Building dev offering">Building dev offering</option>
+  <option value="Camp clearing">Camp clearing</option>
+  <option value="Children zeal">Children zeal</option>
+  <option value="Conference manual">Conference manual</option>
+  <option value="Congress program">Congress program</option>
+  <option value="Congress support">Congress support</option>
+  <option value="Congress thanksgiving">Congress thanksgiving</option>
+  <option value="Convention offering">Convention offering</option>
+  <option value="Convention prog">Convention prog</option>
+  <option value="Convention special thanksgiving">Convention special thanksgiving</option>
+  <option value="Convention support">Convention support</option>
+  <option value="Convention thanksgiving">Convention thanksgiving</option>
+  <option value="Counselor support">Counselor support</option>
+  <option value="Family weekend">Family weekend</option>
+  <option value="First born redemption">First born redemption</option>
+  <option value="GO anniversary thanksgiving">GO anniversary thanksgiving</option>
+  <option value="H/G service viewing centre offering">H/G service viewing centre offering</option>
+  <option value="Helps weekend">Helps weekend</option>
+  <option value="Holy communion offering">Holy communion offering</option>
+  <option value="Let's go a fishing">Let's go a fishing</option>
+  <option value="Marriage certificate">Marriage certificate</option>
+  <option value="Minister's conference">Minister's conference</option>
+  <option value="Minister's new auditorium offering">Minister's new auditorium offering</option>
+  <option value="Mission support">Mission support</option>
+  <option value="New auditorium">New auditorium</option>
+  <option value="Pledges/Vow/Covenant Seed">Pledges/Vow/Covenant Seed</option>
+  <option value="Project offering">Project offering</option>
+  <option value="Provincial convention support">Provincial convention support</option>
+  <option value="Province CSR support">Province CSR support</option>
+  <option value="Province programme offering">Province programme offering</option>
+  <option value="Radio and TV">Radio and TV</option>
+  <option value="RCCG Partner">RCCG Partner </option>
+  <option value="Regional contribution">Regional contribution</option>
+  <option value="Send Forth/ Pastors' welfare">Send Forth/ Pastors' welfare</option>
+  <option value="Special Holy Ghost Service support">Special Holy Ghost Service support</option>
+  <option value="Training weekend">Training weekend</option>
+  <option value="Convention volunteer">Convention volunteer</option>
+  <option value="Open Heaven Devotional">Open Heaven Devotional</option>
+  <option value="CSR support (Area HQ)">CSR support (Area HQ)</option>
+  <option value="RMF">RMF</option>
+  <option value="RUN Educational Fund">RUN Educational Fund</option>
+  <option value="Area levies (welfare)">Area levies (welfare)</option>
+  <option value="Area levies (Let's go a fishing)">Area levies (Let's go a fishing)</option>
+
+</select>
+</div>
+</div>
+
+    </div>
+    <div className="buttons">
+    <button onClick={editSubmitFunction}>Update</button>
+    <button className="redded" onClick={closeWork}>Delete</button>
+    </div>
+
+    
+    </div>
+</div>
+        </StyledEdit>
+        <StyledEdit id="worked">
+<div className="main">
+    <div className="flex">
+    <div className="title">
+    <h3>Edit</h3>
+    <span className="line"/>
+    </div>
+    <div className="form">
+    <div className="inner">
+    <div className="input">
+<h4>Event</h4>
+<select name="Event" id="worked-event">
+  <option value="not valid">--Please pick an event type--</option>
+  <option value="Sunday service">Sunday service</option>
+  <option value="Sunday school">Sunday school</option>
+  <option value="House fellowship">House fellowship</option>
+  <option value="Tuesday service">Tuesday service</option>
+  <option value="Thursday service">Thursday service</option>
+  <option value="Friday night vigil">Friday night vigil</option>
+  <option value="No event, just records">No event, just records</option>
+</select>
+
+</div>
+<div className="input">
+<h4>Week</h4>
+<select name="Event" id="worked-week">
+  <option value="not valid">--Please pick a week number--</option>
+  <option value="1">1</option>
+  <option value="2">2</option>
+  <option value="3">3</option>
+  <option value="4">4</option>
+
+</select>
+
+</div>
+<div className="input">
+<h4>Date</h4>
+<input type="date" id="worked-date"/>
+</div>
+<div className="input">
+<h4>Men</h4>
+<input type="number" id="worked-men"/>
+</div>
+<div className="input">
+<h4>Women</h4>
+<input type="number" id="worked-women"/>
+</div>
+<div className="input">
+<h4>Children</h4>
+<input type="number" id="worked-children"/>
+</div>
+<div className="input">
+<h4>Newcomers</h4>
+<input type="number" id="worked-newcomers"/>
+</div>
+<div className="input">
+<h4>Converts</h4>
+<input type="number" id="worked-converts"/>
+</div>
+
+    </div>
+
+    </div>
+    <div className="buttons">
+    <button onClick={editSubmitFunction}>Update</button>
+    <button className="redded" onClick={closeWork}>Delete</button>
+    </div>
+
+    
+    </div>
+</div>
+        </StyledEdit>
+            </>
+        }
         </StyledHome>
     )
 }
@@ -596,10 +1265,12 @@ height:100% ;
   color:${formBgColor} ;
   transition:.2s ease-in ;
  
-  &::-webkit-scrollbar {
-    display: none;
+ &::-webkit-scrollbar {
+  width: 20px;
 }
-
+&::-webkit-scrollbar-thumb {
+  background: #16A34A;
+}
   &:hover{
     width: 470px;
     background-color:${darkenColor} ;
@@ -686,11 +1357,30 @@ flex-direction:column ;
 align-items:flex-start ;
 gap:75px;
 width:100% ;
+overflow-x:auto ;
 
 table{
     width:auto ;
     font-size:20px ;
     border-collapse:collapse ;
+
+    tr{
+        cursor: pointer;
+        pointer-events:none
+    }
+    .greened{
+        background-color:${darkColor} ;
+        color:${formBgColor} ;
+        transition:.2s ease-in ;
+        pointer-events:auto;
+
+        &:hover{
+        background-color:${darkenColor} ;
+        }
+        th,td{
+            border:2px solid ${darkenColor} ;
+        }
+    }
 
     tbody{
         padding:0 ;
@@ -869,13 +1559,30 @@ justify-content:center ;
 }
 }
 
-.form{
-    display:flex ;
-align-items:flex-start ;
-gap:40px;
-flex-direction:column ;
+.form{ 
+height:60% ;
+overflow-y:auto;
+padding-right:10px ;
+&::-webkit-scrollbar {
+  width: 20px;
+}
+&::-webkit-scrollbar-thumb {
+  background: ${darkColor};
+}
 
-.input{
+
+.inner{
+
+    width:100% ;
+    height:auto ;
+    display:flex ;
+justify-content:center ;
+align-items:flex-start ;
+flex-direction:column ;
+gap:20px;
+
+
+    .input{
     display:flex ;
     justify-content:space-between ;
     align-items:center ;
@@ -933,9 +1640,26 @@ height:100% ;
   
 }
 }
+}
 
-button{
-    width:490px ;
+.buttons{
+    width:100% ;
+    height:auto ;
+    display:flex ;
+    justify-content:space-between ;
+    align-items:stretch ;
+    gap:75px;
+
+    .redded{
+        background-color:#DC2626 ;
+        transition:.2s ease-in ;
+
+        &:hover{
+            background-color:#7F1D1D ;
+        }
+    }
+    button{
+    width:100% ;
     height: 60px;
     background-color:${darkColor} ;
     color:${formBgColor} ;
@@ -950,6 +1674,7 @@ button{
     &:hover{
         background-color:${darkenColor} ;
     }
+}
 }
     }
 }
