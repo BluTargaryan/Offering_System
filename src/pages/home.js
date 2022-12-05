@@ -9,6 +9,10 @@ import {db} from '../firebase'
 import {collection, addDoc, Timestamp,query, orderBy,onSnapshot, doc, updateDoc, deleteDoc} from 'firebase/firestore'
 import { useState, useEffect} from "react";
 import { async } from "@firebase/util";
+import Table from "../comps/table";
+import TableFixed from "../comps/tablefixed";
+import TableItem from "../comps/tableitem";
+import TableLevies from "../comps/tablelevies";
 
 
 
@@ -30,8 +34,8 @@ const Home = ()=>{
 
     const { onDownload } = useDownloadExcel({
         currentTableRef: tableRef.current,
-        filename: 'Users table',
-        sheet: 'Users'
+        filename: 'Church records',
+        sheet: 'Sheet 1'
     })
 
     const hideAlert = () =>{
@@ -40,7 +44,23 @@ const Home = ()=>{
     const showAlert = () =>{
         document.getElementById('alert').style.display="flex"
     }
-
+//to generate new period
+const generatePeriod = async()=>{
+    let newPeriod = period+1
+    const record =await addDoc(recordsRef, {
+        created: Timestamp.now(),
+        section:"offerings",
+        period:newPeriod,
+        event:"none",
+        week:1,
+        date:Timestamp.now(),
+        amount:0,
+        type:"Starting new period",
+        payment_type:"none"
+      })
+      setPeriod(newPeriod)
+      document.getElementById('alert').style.display="none"
+}
   
 
 
@@ -55,7 +75,7 @@ const Home = ()=>{
  /* function to get all records from firestore in realtime */ 
 
  useEffect(() => {
-        const q = query(collection(db, 'records'), orderBy('date', 'asc'))
+        const q = query(collection(db, 'records'), orderBy('created', 'asc'))
         onSnapshot(q, (querySnapshot) => {
           setRecords(querySnapshot.docs.map(doc => ({
             id: doc.id,
@@ -65,6 +85,14 @@ const Home = ()=>{
         })
        
   },[])
+
+  useEffect(()=>{
+   if(isFetched){
+    let gotPeriod= records[(records.length)-1].data.period
+    console.log(gotPeriod)
+    setPeriod(gotPeriod)
+   }
+  })
 
 
 
@@ -488,16 +516,15 @@ try{
     
 
     //TO gET TOTAL AMOUNT FOR THE AMOUNT TYPE
-    const amountTotal = (name,week,periodves)=>{
+    const amountTotal = (name)=>{
         let totalAmount=0
         let length = records.length
 for(let x=0; x<length; x++){
     let recName = records[x].data.type
     let recAltName= records[x].data.payment_type
     let recAmount = records[x].data.amount
-    let recWeek= records[x].data.week
     let recPeriod= records[records.length-1].data.period
-    if(((name===recName) || (name===recAltName))&&(week===recWeek)&&(periodves===recPeriod)){
+    if(((name===recName) || (name===recAltName))&&(period===recPeriod)){
 totalAmount=totalAmount+recAmount
     }
 }
@@ -505,15 +532,120 @@ return totalAmount
     }
 
     //to get remit amount
-    const amountRemit = (name,week,periodves,percent)=>{
-        const amount = amountTotal(name, week,periodves)
+    const amountRemit = (name,percent)=>{
+        const amount = amountTotal(name)
         const remit = (percent*amount)
         return remit
     }
+//to get total remit value
+const totalRemit = ()=>{
+    let remitAmounts = document.getElementsByClassName('remittal')
+    let remitValues = []
 
-    //to update document
+    for(let x=0; x<remitAmounts.length;x++){
+       remitValues.push(parseInt(remitAmounts[x].innerText))
+    }
+    let remitTotal = 0
+    for(let x=0;x<remitValues.length;x++){
+      remitTotal=remitTotal+remitValues[x]
+    }
+    return remitTotal
+}
+
+//to get total remit value
+const totalRemit2 = ()=>{
+  let remitAmounts = document.getElementsByClassName('remitton')
+  let remitValues = []
+
+  for(let x=0; x<remitAmounts.length;x++){
+     remitValues.push(parseInt(remitAmounts[x].innerText))
+  }
+  let remitTotal = 0
+  for(let x=0;x<remitValues.length;x++){
+    remitTotal=remitTotal+remitValues[x]
+  }
+  return remitTotal
+}
+
+//to get total remit value
+const totalRemit3 = ()=>{
+  let remitAmounts = document.getElementsByClassName('remitfixed')
+  let remitValues = []
+
+  for(let x=0; x<remitAmounts.length;x++){
+     remitValues.push(parseInt(remitAmounts[x].innerText))
+  }
+  let remitTotal = 0
+  for(let x=0;x<remitValues.length;x++){
+    remitTotal=remitTotal+remitValues[x]
+  }
+  return remitTotal
+}
+//to get total remit value
+const totalRemit4 = ()=>{
+  let remitAmounts = document.getElementsByClassName('remitlevy')
+  let remitValues = []
+
+  for(let x=0; x<remitAmounts.length;x++){
+     remitValues.push(parseInt(remitAmounts[x].innerText))
+  }
+  let remitTotal = 0
+  for(let x=0;x<remitValues.length;x++){
+    remitTotal=remitTotal+remitValues[x]
+  }
+  return remitTotal
+}
+//to get tithe rebate
+const tRebate = ()=>{
+  let minTithe = amountTotal("Minister's tithe",period)
+  let genTithe = amountTotal("General tithe",period)
+  let rebate = .20*((.36*minTithe)+(.36*genTithe))
+  return rebate
+}
+
+const absoluteTotal = () =>{
+  let total = document.getElementsByClassName('remitPart')
+  let values=[]
+  for(let x=0; x<total.length;x++){
+    values.push(parseInt(total[x].innerText))
+ }
+ let valueTotal = 0
+ for(let x=0;x<values.length;x++){
+  valueTotal=valueTotal+values[x]
+}
+return valueTotal
+}
 
 
+    //to get weekly attendance
+    const attendanceWeekly = (week,event)=>{
+      let length = records.length
+      let men = 0
+      let women=0
+      let children=0
+      let total = 0
+      for(let x=0; x<length; x++){
+        let recEvent= records[x].data.event
+        let recPeriod= records[records.length-1].data.period
+        let recWeek = records[x].data.week
+        if(((week===recWeek) && (event===recEvent)&&(period===recPeriod))){
+          men=parseInt(records[x].data.men)
+          women=parseInt(records[x].data.women)
+          children=parseInt(records[x].data.children)
+          total = men+women+children
+          break
+              }
+      }
+return(
+  <tr>
+    <td>{event}</td>
+    <td>{men}</td>
+    <td>{women}</td>
+    <td>{children}</td>
+    <td>{total}</td>
+  </tr>
+)
+    }
 
     return(
         <StyledHome>
@@ -531,7 +663,7 @@ return totalAmount
 </div>
 </div>
 
-<div id="main-form">
+    <div id="main-form">
 <h2>Data entry</h2>
 <div className="main">
     <form className="mini-form" action="submit" >
@@ -581,6 +713,7 @@ return totalAmount
 <option value="volvo">--Please pick an offering type--</option>
   <option value="General tithe">General tithe</option>
   <option value="Minister's tithe">Minister's tithe</option>
+  <option value="Offerings">Offerings</option>
   <option value="Sunday love offering">Sunday love offering</option>
   <option value="Thanksgiving">Thanksgiving</option>
   <option value="CRM">CRM</option>
@@ -650,7 +783,11 @@ return totalAmount
 </div>
 
     </div>
-    <button onClick={offeringSubmit}>Submit</button>
+    {
+        isFetched &&
+        <button onClick={offeringSubmit}>Submit</button>
+    }
+    
 
     
     </form>
@@ -714,13 +851,19 @@ return totalAmount
 
 
     </div>
-    <button onClick={attendanceSubmit}>Submit</button>
+    {
+        isFetched &&
+        <button onClick={attendanceSubmit}>Submit</button>
+    }
+   
     
     
     </form>
 
 </div>
 </div>
+
+
 
 <div id="reports">
     <div className="report-section">
@@ -740,10 +883,9 @@ return totalAmount
 
 <table ref={tableRef}>
     <tbody>
-        <tr><td id="type">Offering</td></tr>
-        <tr>
-            <td id="title">Week 1</td>
-        </tr>
+      <>
+        <tr><td id="type">Offering Records</td></tr>
+        <tr><td id="title">Offerings</td></tr>
 <tr>
     <th>Item Name</th>
     <th>Amount</th>
@@ -751,15 +893,539 @@ return totalAmount
     <th>Remittance</th>
 </tr>
 {isFetched &&
-    <tr className="tr">
-    <td>Congress thanksgiving</td>
-    <td>{amountTotal("Congress thanksgiving",1,records[records.length-1].data.period)}</td>
-    <td>100%</td>
-    <td>{amountRemit("Congress thanksgiving",1,records[records.length-1].data.period,1)}</td>
+<>
+
+   <Table
+   name="Offerings"
+   totalAmount={amountTotal("Offerings",period)}
+   percent="64%"
+   remitAmount={amountRemit("Offerings",.64)}
+   />
+   <Table
+   name="General tithe"
+   totalAmount={amountTotal("General tithe")}
+   percent="64%"
+   remitAmount={amountRemit("General tithe",.64)}
+   />
+   <Table
+   name="Minister's tithe"
+   totalAmount={amountTotal("Minister's tithe")}
+   percent="64%"
+   remitAmount={amountRemit("Minister's tithe",.64)}
+   />
+     <Table
+   name="Sunday school"
+   totalAmount={amountTotal("Sunday school")}
+   percent="100%"
+   remitAmount={amountRemit("Sunday school",1)}
+   />
+   <Table
+   name="Sunday love offering"
+   totalAmount={amountTotal("Sunday love offering")}
+   percent="10%"
+   remitAmount={amountRemit("Sunday love offering",.64)}
+   />
+   <Table
+   name="Minister's tithe"
+   totalAmount={amountTotal("Minister's tithe")}
+   percent="10%"
+   remitAmount={amountRemit("Minister's tithe",.10)}
+   />
+   <Table
+   name="Thanksgiving"
+   totalAmount={amountTotal("Thanksgiving")}
+   percent="70%"
+   remitAmount={amountRemit("Thanksgiving",.70)}
+   />
+   <Table
+   name="CRM"
+   totalAmount={amountTotal("CRM")}
+   percent="50%"
+   remitAmount={amountRemit("CRM",.50)}
+   />
+   <Table
+   name="Children offering"
+   totalAmount={amountTotal("Children offering")}
+   percent="35%"
+   remitAmount={amountRemit("Children offering",.35)}
+   />
+   <Table
+   name="First fruit"
+   totalAmount={amountTotal("First fruit")}
+   percent="90%"
+   remitAmount={amountRemit("First fruit",.90)}
+   />
+   <Table
+   name="Gospel fund"
+   totalAmount={amountTotal("Gospel fund")}
+   percent="25%"
+   remitAmount={amountRemit("Gospel fund",.25)}
+   />
+   <Table
+   name="House fellowship offering"
+   totalAmount={amountTotal("House fellowship offering",)}
+   percent="100%"
+   remitAmount={amountRemit("House fellowship offering",1)}
+   />
+   <Table
+   name="African mission"
+   totalAmount={amountTotal("African mission")}
+   percent="100%"
+   remitAmount={amountRemit("African mission",1)}
+   />
+     <Table
+   name="Annual report"
+   totalAmount={amountTotal("Annual report")}
+   percent="100%"
+   remitAmount={amountRemit("Annual report",1)}
+   />
+     <Table
+   name="Annual thanksgiving"
+   totalAmount={amountTotal("Annual thanksgiving")}
+   percent="100%"
+   remitAmount={amountRemit("Annual thanksgiving",1)}
+   />
+     <Table
+   name="Audit S/F"
+   totalAmount={amountTotal("Audit S/F")}
+   percent="100%"
+   remitAmount={amountRemit("Audit S/F",1)}
+/>
+<Table
+   name="Baptismal certificate"
+   totalAmount={amountTotal("Baptismal certificate")}
+   percent="100%"
+   remitAmount={amountRemit("Baptismal certificate",1)}
+   />
+     <Table
+   name="Building dev offering"
+   totalAmount={amountTotal("Building dev offering")}
+   percent="100%"
+   remitAmount={amountRemit("Building dev offering",1)}
+   />
+     <Table
+   name="Camp clearing"
+   totalAmount={amountTotal("Camp clearing")}
+   percent="100%"
+   remitAmount={amountRemit("Camp clearing",1)}
+   />
+     <Table
+   name="Children zeal"
+   totalAmount={amountTotal("Children zeal")}
+   percent="100%"
+   remitAmount={amountRemit("Children zeal",1)}
+   />
+     <Table
+   name="Conference manual"
+   totalAmount={amountTotal("Conference manual")}
+   percent="100%"
+   remitAmount={amountRemit("Conference manual",1)}
+   />
+     <Table
+   name="Congress program"
+   totalAmount={amountTotal("Congress program")}
+   percent="100%"
+   remitAmount={amountRemit("Congress program",1)}
+   />
+     <Table
+   name="Congress support"
+   totalAmount={amountTotal("Congress support")}
+   percent="100%"
+   remitAmount={amountRemit("Congress support",1)}
+   />
+     <Table
+   name="Congress thanksgiving"
+   totalAmount={amountTotal("Congress thanksgiving")}
+   percent="100%"
+   remitAmount={amountRemit("Congress thanksgiving",1)}
+   />
+     <Table
+   name="Convention offering"
+   totalAmount={amountTotal("Convention offering")}
+   percent="100%"
+   remitAmount={amountRemit("Convention offering",1)}
+   />
+     <Table
+   name="Convention prog"
+   totalAmount={amountTotal("Convention prog")}
+   percent="100%"
+   remitAmount={amountRemit("Convention prog",1)}
+   />
+     <Table
+   name="Convention special thanksgiving"
+   totalAmount={amountTotal("Convention special thanksgiving")}
+   percent="100%"
+   remitAmount={amountRemit("Convention special thanksgiving",1)}
+   />
+     <Table
+   name="Convention support"
+   totalAmount={amountTotal("Convention support")}
+   percent="100%"
+   remitAmount={amountRemit("Convention support",1)}
+   />
+     <Table
+   name="Convention thanksgiving"
+   totalAmount={amountTotal("Convention thanksgiving")}
+   percent="100%"
+   remitAmount={amountRemit("Convention thanksgiving",1)}
+   />
+     <Table
+   name="Counselor support"
+   totalAmount={amountTotal("Counselor support")}
+   percent="100%"
+   remitAmount={amountRemit("Counselor support",1)}
+   />
+     <Table
+   name="Family weekend"
+   totalAmount={amountTotal("Family weekend")}
+   percent="100%"
+   remitAmount={amountRemit("Family weekend",1)}
+   />
+     <Table
+   name="First born redemption"
+   totalAmount={amountTotal("First born redemption")}
+   percent="100%"
+   remitAmount={amountRemit("First born redemption",1)}
+   />
+     <Table
+   name="GO anniversary thanksgiving"
+   totalAmount={amountTotal("GO anniversary thanksgiving")}
+   percent="100%"
+   remitAmount={amountRemit("GO anniversary thanksgiving",1)}
+   />
+     <Table
+   name="H/G service viewing centre offering"
+   totalAmount={amountTotal("H/G service viewing centre offering")}
+   percent="100%"
+   remitAmount={amountRemit("H/G service viewing centre offering",1)}
+   />
+     <Table
+   name="Helps weekend"
+   totalAmount={amountTotal("Helps weekend")}
+   percent="85%"
+   remitAmount={amountRemit("Helps weekend",.85)}
+   />
+     <Table
+   name="Holy communion offering"
+   totalAmount={amountTotal("Holy communion offering")}
+   percent="100%"
+   remitAmount={amountRemit("Holy communion offering",1)}
+   />
+     <Table
+   name="Let's go a fishing"
+   totalAmount={amountTotal("Let's go a fishing")}
+   percent="100%"
+   remitAmount={amountRemit("Let's go a fishing",1)}
+   />
+     <Table
+   name="Marriage certificate"
+   totalAmount={amountTotal("Marriage certificate")}
+   percent="100%"
+   remitAmount={amountRemit("Marriage certificate",1)}
+   />
+     <Table
+   name="Minister's conference"
+   totalAmount={amountTotal("Minister's conference")}
+   percent="100%"
+   remitAmount={amountRemit("Minister's conference",1)}
+   />
+     <Table
+   name="Minister's new auditorium offering"
+   totalAmount={amountTotal("Minister's new auditorium offering")}
+   percent="100%"
+   remitAmount={amountRemit("Minister's new auditorium offering",1)}
+   />
+     <Table
+   name="Mission support"
+   totalAmount={amountTotal("Mission support")}
+   percent="100%"
+   remitAmount={amountRemit("Mission support",1)}
+   />
+     <Table
+   name="New auditorium"
+   totalAmount={amountTotal("New auditorium")}
+   percent="100%"
+   remitAmount={amountRemit("New auditorium",1)}
+   />
+     <Table
+   name="Pledges/Vow/Covenant Seed"
+   totalAmount={amountTotal("Pledges/Vow/Covenant Seed")}
+   percent="100%"
+   remitAmount={amountRemit("Pledges/Vow/Covenant Seed",1)}
+   />
+     <Table
+   name="Project offering"
+   totalAmount={amountTotal("Project offering")}
+   percent="100%"
+   remitAmount={amountRemit("Project offering",1)}
+   />
+     <Table
+   name="Provincial convention support"
+   totalAmount={amountTotal("Provincial convention support")}
+   percent="100%"
+   remitAmount={amountRemit("Provincial convention support",1)}
+   />
+     <Table
+   name="Province CSR support"
+   totalAmount={amountTotal("Province CSR support")}
+   percent="100%"
+   remitAmount={amountRemit("Province CSR support",1)}
+   />
+     <Table
+   name="Province programme offering"
+   totalAmount={amountTotal("Province programme offering")}
+   percent="100%"
+   remitAmount={amountRemit("Province programme offering",1)}
+   />
+     <Table
+   name="Radio and TV"
+   totalAmount={amountTotal("Radio and TV")}
+   percent="100%"
+   remitAmount={amountRemit("Radio and TV",1)}
+   />
+     <Table
+   name="RCCG Partner"
+   totalAmount={amountTotal("RCCG Partner")}
+   percent="100%"
+   remitAmount={amountRemit("RCCG Partner",1)}
+   />
+     <Table
+   name="Regional contribution"
+   totalAmount={amountTotal("Regional contribution")}
+   percent="100%"
+   remitAmount={amountRemit("Regional contribution",1)}
+   />
+     <Table
+   name="Send Forth/ Pastors' welfare"
+   totalAmount={amountTotal("Send Forth/ Pastors' welfare")}
+   percent="100%"
+   remitAmount={amountRemit("Send Forth/ Pastors' welfare",1)}
+   />
+     <Table
+   name="Special Holy Ghost Service support"
+   totalAmount={amountTotal("Special Holy Ghost Service support")}
+   percent="100%"
+   remitAmount={amountRemit("Special Holy Ghost Service support",1)}
+   />
+     <Table
+   name="Training weekend"
+   totalAmount={amountTotal("Training weekend")}
+   percent="100%"
+   remitAmount={amountRemit("Training weekend",1)}
+   />
+  
+   <tr>
+    <th>Total </th>
+    <th></th>
+    <th></th>
+    <th className="remitPart">{totalRemit()}</th>
 </tr>
+   </>
 }
+<tr><td id="title">Percentage of another item</td></tr>
+{
+  isFetched &&
+  <>
+  <TableItem
+   name="20% Sunday love offering"
+   totalAmount={amountTotal("Sunday love offering")}
+   percent="20%"
+   remitAmount={amountRemit("Sunday love offering",.20)}
+   />
+   <TableItem
+   name="25% CRM"
+   totalAmount={amountTotal("CRM",)}
+   percent="25%"
+   remitAmount={amountRemit("CRM",.25)}
+   />
+    <TableItem
+   name="5% Thanksgiving"
+   totalAmount={amountTotal("Thanksgiving",)}
+   percent="5%"
+   remitAmount={amountRemit("Thanksgiving",.5)}
+   />
+   <tr>
+   <th>Total </th>
+   <th></th>
+   <th></th>
+   <th className="remitPart">{totalRemit2()}</th>
+   </tr>
+  </>
+}
+<tr><td id="title">Fixed payments</td></tr>
+{
+  isFetched &&
+  <>
+    <TableFixed
+name="Convention volunteer"
+totalAmount={amountTotal("Convention volunteer")}
+percent="100%"
+remitAmount={amountRemit("Convention volunteer",1)}
+/>
+  <TableFixed
+name="Open Heaven Devotional"
+totalAmount={amountTotal("Open Heaven Devotional")}
+percent="100%"
+remitAmount={amountRemit("Open Heaven Devotional",1)}
+/>
+  <TableFixed
+name="CSR support"
+totalAmount={amountTotal("CSR support")}
+percent="100%"
+remitAmount={amountRemit("CSR support",1)}
+/>
+  <TableFixed
+name="RMF"
+totalAmount={amountTotal("RMF")}
+percent="100%"
+remitAmount={amountRemit("RMF",1)}
+/>
+  <TableFixed
+name="RUN Educational Fund"
+totalAmount={amountTotal("RUN Educational Fund")}
+percent="100%"
+remitAmount={amountRemit("RUN Educational Fund",1)}
+/>
+<tr>
+   <th>Total </th>
+   <th></th>
+   <th></th>
+   <th className="remitPart">{totalRemit3()}</th>
+   </tr>
+  </>
+}
+<tr><td id="title">Percentage of tithe rebate</td></tr>
+{
+  isFetched &&
+  <>
+  <tr>
+    <th>Province joint church planting</th>
+    <th></th>
+    <th></th>
+    <th className="remitPart">{tRebate()}</th>
+  </tr>
+  </>
+}
+<tr><td id="title">Area levies</td></tr>
+{
+  isFetched &&
+  <>
+     <TableLevies
+   name="Area levies (welfare)"
+   totalAmount={amountTotal("Area levies (welfare)")}
+   percent="100%"
+   remitAmount={amountRemit("Area levies (welfare)",1)}
+   />
+     <TableLevies
+   name="Area levies (let's go a fishing)"
+   totalAmount={amountTotal("Area levies (let's go a fishing)")}
+   percent="100%"
+   remitAmount={amountRemit("Area levies (let's go a fishing)",1)}
+   />
+   <tr>
+   <th>Total </th>
+   <th></th>
+   <th></th>
+   <th className="remitPart">{totalRemit4()}</th>
+   </tr>
+  </>
+}
+<tr><td id="title">Total Payment to Area</td></tr>
+{
+  isFetched &&
+  <>
+  <tr>
+    <th>Amount</th>
+    <th></th>
+    <th></th>
+    <th>{absoluteTotal()}</th>
+  </tr>
+  </>
+}
+</>
+
+<>
+<tr><td id="type">Attendance Records</td></tr>
+<tr><td id="title">Week 1</td></tr>
+<tr>
+    <th>Event</th>
+    <th>Men</th>
+    <th>Women</th>
+    <th>Children</th>
+    <th>Total</th>
+</tr>
+{
+isFetched &&
+<>
+{attendanceWeekly(1,"Sunday service")}
+{attendanceWeekly(1,"Sunday school")}
+{attendanceWeekly(1,"House fellowship")}
+{attendanceWeekly(1,"Tuesday service")}
+{attendanceWeekly(1,"Thursday service")}
+{attendanceWeekly(1,"Friday night vigil")}
+</>
+}
+<tr><td id="title">Week 2</td></tr>
+<tr>
+    <th>Event</th>
+    <th>Men</th>
+    <th>Women</th>
+    <th>Children</th>
+    <th>Total</th>
+</tr>
+{
+isFetched &&
+<>
+{attendanceWeekly(2,"Sunday service")}
+{attendanceWeekly(2,"Sunday school")}
+{attendanceWeekly(2,"House fellowship")}
+{attendanceWeekly(2,"Tuesday service")}
+{attendanceWeekly(2,"Thursday service")}
+{attendanceWeekly(2,"Friday night vigil")}
+</>
+}
+<tr><td id="title">Week 3</td></tr>
+<tr>
+    <th>Event</th>
+    <th>Men</th>
+    <th>Women</th>
+    <th>Children</th>
+    <th>Total</th>
+</tr>
+{
+isFetched &&
+<>
+{attendanceWeekly(3,"Sunday service")}
+{attendanceWeekly(3,"Sunday school")}
+{attendanceWeekly(3,"House fellowship")}
+{attendanceWeekly(3,"Tuesday service")}
+{attendanceWeekly(3,"Thursday service")}
+{attendanceWeekly(3,"Friday night vigil")}
+</>
+}
+<tr><td id="title">Week 4</td></tr>
+<tr>
+    <th>Event</th>
+    <th>Men</th>
+    <th>Women</th>
+    <th>Children</th>
+    <th>Total</th>
+</tr>
+{
+isFetched &&
+<>
+{attendanceWeekly(4,"Sunday service")}
+{attendanceWeekly(4,"Sunday school")}
+{attendanceWeekly(4,"House fellowship")}
+{attendanceWeekly(4,"Tuesday service")}
+{attendanceWeekly(4,"Thursday service")}
+{attendanceWeekly(4,"Friday night vigil")}
+</>
+}
+</>
     </tbody>
 </table>
+
 
     </div>
     </div>
@@ -775,7 +1441,7 @@ return totalAmount
 <h4>Start new period</h4>
 <p>You are about to start a new financial period. Are you sure?</p>
 <div className="buttons">
-    <button className="warning" onClick={hideAlert}>generate</button>
+    <button className="warning" onClick={generatePeriod}>yes</button>
     <button onClick={hideAlert}>no,go back</button>
 </div>
     </div>
