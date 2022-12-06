@@ -635,7 +635,7 @@ return valueTotal
       let total = 0
       for(let x=0; x<length; x++){
         let recEvent= records[x].data.event
-        let recPeriod= records[records.length-1].data.period
+        let recPeriod= records[x].data.period
         let recWeek = records[x].data.week
         let recSection = records[x].data.section
         if(((week===recWeek) && (event===recEvent)&&(period===recPeriod)&&(recSection==="attendance"))){
