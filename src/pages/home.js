@@ -28,9 +28,12 @@ const darkenColor = "#0A2715"
 const Home = ()=>{
  //state for records
  const [records, setRecords] = useState([])
-   
+   //State
+   const [period, setPeriod] = useState()
     //TO handle table section
     const tableRef = useRef(null);
+
+   
 
     const { onDownload } = useDownloadExcel({
         currentTableRef: tableRef.current,
@@ -60,14 +63,14 @@ const generatePeriod = async()=>{
       })
       setPeriod(newPeriod)
       document.getElementById('alert').style.display="none"
+      window.location.reload();
 }
   
 
 
   
 
-    //State
-    const [period, setPeriod] = useState(0)
+    
     //to check if records is filled
     const [isFetched, setIsFetched] = useState(false);
     //to get period number
@@ -75,7 +78,7 @@ const generatePeriod = async()=>{
  /* function to get all records from firestore in realtime */ 
 
  useEffect(() => {
-        const q = query(collection(db, 'records'), orderBy('created', 'asc'))
+        const q = query(collection(db, 'records'), orderBy('period', 'asc'))
         onSnapshot(q, (querySnapshot) => {
           setRecords(querySnapshot.docs.map(doc => ({
             id: doc.id,
@@ -88,9 +91,14 @@ const generatePeriod = async()=>{
 
   useEffect(()=>{
    if(isFetched){
-    let gotPeriod= records[(records.length)-1].data.period
-    console.log(gotPeriod)
-    setPeriod(gotPeriod)
+    try{
+      let gotPeriod= records[(records.length)-1].data.period
+      console.log(gotPeriod)
+      setPeriod(gotPeriod)
+    }
+   catch{
+    alert("Period not existing yet")
+   }
    }
   })
 
@@ -523,9 +531,10 @@ for(let x=0; x<length; x++){
     let recName = records[x].data.type
     let recAltName= records[x].data.payment_type
     let recAmount = records[x].data.amount
-    let recPeriod= records[records.length-1].data.period
-    if(((name===recName) || (name===recAltName))&&(period===recPeriod)){
-totalAmount=totalAmount+recAmount
+    let recPeriod= records[x].data.period
+    if(((name===recName) || (name===recAltName))&&(recPeriod===period)){
+      console.log(period)
+       totalAmount=totalAmount+recAmount
     }
 }
 return totalAmount
@@ -597,8 +606,8 @@ const totalRemit4 = ()=>{
 }
 //to get tithe rebate
 const tRebate = ()=>{
-  let minTithe = amountTotal("Minister's tithe",period)
-  let genTithe = amountTotal("General tithe",period)
+  let minTithe = amountTotal("Minister's tithe")
+  let genTithe = amountTotal("General tithe")
   let rebate = .20*((.36*minTithe)+(.36*genTithe))
   return rebate
 }
@@ -628,7 +637,8 @@ return valueTotal
         let recEvent= records[x].data.event
         let recPeriod= records[records.length-1].data.period
         let recWeek = records[x].data.week
-        if(((week===recWeek) && (event===recEvent)&&(period===recPeriod))){
+        let recSection = records[x].data.section
+        if(((week===recWeek) && (event===recEvent)&&(period===recPeriod)&&(recSection==="attendance"))){
           men=parseInt(records[x].data.men)
           women=parseInt(records[x].data.women)
           children=parseInt(records[x].data.children)
@@ -923,7 +933,7 @@ return(
    name="Sunday love offering"
    totalAmount={amountTotal("Sunday love offering")}
    percent="10%"
-   remitAmount={amountRemit("Sunday love offering",.64)}
+   remitAmount={amountRemit("Sunday love offering",.10)}
    />
    <Table
    name="Minister's tithe"
