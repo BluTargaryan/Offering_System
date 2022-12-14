@@ -947,7 +947,7 @@ isWeekSet(false)
     <p>Put in the week number and click <span>LOAD</span> to generate weekly report. Click <span>EDIT</span> to edit records.</p>
     <div className="settings">
 <h4>Week:</h4>
-<input id="week-selector" type="number" min="1" max="4"/>
+<input id="week-selector" type="number"/>
 <button onClick={weekSetter}>load</button>
 <button onClick={editStartFunction}>edit</button>
     </div>
