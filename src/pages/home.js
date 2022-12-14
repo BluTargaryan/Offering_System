@@ -709,10 +709,10 @@ setWeek(input)
 isWeekSet(true)
   }
   if((input<=0)||(input>5)){
-    document.getElementById('week-selector').value=""
 alert("Invalid week number. Please put a value within range of 1 and 5")
 setWeek()
 isWeekSet(false)
+document.getElementById('week-selector').value=""
   }
   if((input==="")||(input===null)){
     alert("No value typed in. Please put a value within range of 1 and 5")
