@@ -8,11 +8,11 @@ import { HashLink } from 'react-router-hash-link';
 import {db} from '../firebase'
 import {collection, addDoc, Timestamp,query, orderBy,onSnapshot, doc, updateDoc, deleteDoc} from 'firebase/firestore'
 import { useState, useEffect} from "react";
-import { async } from "@firebase/util";
 import Table from "../comps/table";
 import TableFixed from "../comps/tablefixed";
 import TableItem from "../comps/tableitem";
 import TableLevies from "../comps/tablelevies";
+import TableWeek from "../comps/tableweek"
 
 
 
@@ -657,6 +657,70 @@ return(
 )
     }
 
+      //TO gET TOTAL AMOUNT FOR THE AMOUNT TYPE
+      const amountTotalWeek = (name)=>{
+        let totalAmount=0
+        let length = records.length
+for(let x=0; x<length; x++){
+    let recName = records[x].data.type
+    let recAltName= records[x].data.payment_type
+    let recAmount = records[x].data.amount
+    let recPeriod= records[x].data.period
+    let recWeek= records[x].data.week
+    if(((name===recName) || (name===recAltName))&&(recPeriod===period)&&(recWeek===week)){
+      console.log(period)
+       totalAmount=totalAmount+recAmount
+    }
+}
+return totalAmount
+    }
+
+    //to get remit amount
+    const amountRemitWeek = (name,percent)=>{
+        const amount = amountTotalWeek(name)
+        const remit = (percent*amount)
+        return remit
+    }
+//to get total remit value
+const totalRemitWeek = ()=>{
+    let remitAmounts = document.getElementsByClassName('remitweek')
+    let remitValues = []
+
+    for(let x=0; x<remitAmounts.length;x++){
+       remitValues.push(parseInt(remitAmounts[x].innerText))
+    }
+    let remitTotal = 0
+    for(let x=0;x<remitValues.length;x++){
+      remitTotal=remitTotal+remitValues[x]
+    }
+    return remitTotal
+}
+
+//state for table week
+const [week, setWeek] = useState();
+//state to check if week set
+const [weekset, isWeekSet] = useState(false);
+//method to set week
+const weekSetter= () =>{
+  let input = document.getElementById('week-selector').value
+  //check if empty
+  if((input>=1)||(input<=5)){
+setWeek(input)
+isWeekSet(true)
+  }
+  if((input<=0)||(input>5)){
+    document.getElementById('week-selector').value=""
+alert("Invalid week number. Please put a value within range of 1 and 5")
+setWeek()
+isWeekSet(false)
+  }
+  if((input==="")||(input===null)){
+    alert("No value typed in. Please put a value within range of 1 and 5")
+    setWeek()
+isWeekSet(false)
+  }
+}
+
     return(
         <StyledHome>
 <Nav2/>
@@ -704,6 +768,7 @@ return(
   <option value="2">2</option>
   <option value="3">3</option>
   <option value="4">4</option>
+  <option value="5">5</option>
 
 </select>
 
@@ -711,11 +776,11 @@ return(
 
 <div className="input">
 <h4>Date</h4>
-<input type="date" id="date-offering"/>
+<input type="date" id="date-offering" placeholder="Date:"/>
 </div>
 <div className="input">
 <h4>Amount</h4>
-<input type="number" id="amount"/>
+<input type="number" id="amount" placeholder="Amount"/>
 </div>
 <div className="input">
 <h4>Offering type</h4>
@@ -830,33 +895,34 @@ return(
   <option value="2">2</option>
   <option value="3">3</option>
   <option value="4">4</option>
+  <option value="5">5</option>
 
 </select>
 
 </div>
 <div className="input">
 <h4>Date</h4>
-<input type="date" id="date-attendance"/>
+<input type="date" id="date-attendance" />
 </div>
 <div className="input">
 <h4>Men</h4>
-<input type="number" id="men"/>
+<input type="number" id="men" placeholder="Number of men"/>
 </div>
 <div className="input">
 <h4>Women</h4>
-<input type="number" id="women"/>
+<input type="number" id="women" placeholder="Number of women"/>
 </div>
 <div className="input">
 <h4>Children</h4>
-<input type="number" id="children"/>
+<input type="number" id="children" placeholder="Number of children"/>
 </div>
 <div className="input">
 <h4>Newcomers</h4>
-<input type="number" id="newcomers"/>
+<input type="number" id="newcomers" placeholder="Number of newcomers"/>
 </div>
 <div className="input">
 <h4>Converts</h4>
-<input type="number" id="converts"/>
+<input type="number" id="converts" placeholder="Number of converts"/>
 </div>
 
 
@@ -878,18 +944,132 @@ return(
 <div id="reports">
     <div className="report-section">
     <h2>View report</h2>
-    <p>Set range of report or click <span>LOAD</span> to generate full report. Click <span>EDIT</span> to edit records.</p>
+    <p>Put in the week number and click <span>LOAD</span> to generate weekly report. Click <span>EDIT</span> to edit records.</p>
     <div className="settings">
 <h4>Week:</h4>
-<input type="number" min="1" max="4"/>
-<h4>to</h4>
-<input type="number" min="1" max="4"/>
-<button>load</button>
+<input id="week-selector" type="number" min="1" max="4"/>
+<button onClick={weekSetter}>load</button>
 <button onClick={editStartFunction}>edit</button>
     </div>
 
     <div className="table">
+      {weekset &&
+      <table >
+      <tbody>
+      <tr><td id="type">Offering Records (Week {week})</td></tr>
+        <tr><td id="title">Offerings</td></tr>
+        <tr>
+    <th>Item Name</th>
+    <th>Amount</th>
+</tr>
+{isFetched &&
+<>
 
+   <TableWeek
+   name="Offerings"
+   totalAmount={amountTotalWeek("Offerings",period)}
+   percent="64%"
+   remitAmount={amountRemitWeek("Offerings",.64)}
+   />
+   <TableWeek
+   name="General tithe"
+   totalAmount={amountTotalWeek("General tithe")}
+   percent="64%"
+   remitAmount={amountRemitWeek("General tithe",.64)}
+   />
+   <TableWeek
+   name="Minister's tithe"
+   totalAmount={amountTotalWeek("Minister's tithe")}
+   percent="64%"
+   remitAmount={amountRemitWeek("Minister's tithe",.64)}
+   />
+     <TableWeek
+   name="Sunday school"
+   totalAmount={amountTotalWeek("Sunday school")}
+   percent="100%"
+   remitAmount={amountRemitWeek("Sunday school",1)}
+   />
+   <TableWeek
+   name="Sunday love offering"
+   totalAmount={amountTotalWeek("Sunday love offering")}
+   percent="10%"
+   remitAmount={amountRemitWeek("Sunday love offering",.10)}
+   />
+   <TableWeek
+   name="Minister's tithe"
+   totalAmount={amountTotalWeek("Minister's tithe")}
+   percent="10%"
+   remitAmount={amountRemitWeek("Minister's tithe",.10)}
+   />
+   <TableWeek
+   name="Thanksgiving"
+   totalAmount={amountTotalWeek("Thanksgiving")}
+   percent="70%"
+   remitAmount={amountRemitWeek("Thanksgiving",.70)}
+   />
+   <TableWeek
+   name="CRM"
+   totalAmount={amountTotalWeek("CRM")}
+   percent="50%"
+   remitAmount={amountRemitWeek("CRM",.50)}
+   />
+   <TableWeek
+   name="Children offering"
+   totalAmount={amountTotalWeek("Children offering")}
+   percent="35%"
+   remitAmount={amountRemitWeek("Children offering",.35)}
+   />
+   <TableWeek
+   name="First fruit"
+   totalAmount={amountTotalWeek("First fruit")}
+   percent="90%"
+   remitAmount={amountRemitWeek("First fruit",.90)}
+   />
+   <TableWeek
+   name="Gospel fund"
+   totalAmount={amountTotalWeek("Gospel fund")}
+   percent="25%"
+   remitAmount={amountRemitWeek("Gospel fund",.25)}
+   />
+   <TableWeek
+   name="House fellowship offering"
+   totalAmount={amountTotalWeek("House fellowship offering",)}
+   percent="100%"
+   remitAmount={amountRemitWeek("House fellowship offering",1)}
+   />
+  
+  
+   <tr>
+    <th>Total </th>
+    <th className="remitPart">{totalRemitWeek()}</th>
+</tr>
+   </>
+}
+<tr><td id="type">Attendance Records</td></tr>
+<tr><td id="title">Week {week}</td></tr>
+<tr>
+    <th>Event</th>
+    <th>Men</th>
+    <th>Women</th>
+    <th>Children</th>
+    <th>Total</th>
+</tr>
+{
+isFetched &&
+<>
+{attendanceWeekly({week},"Sunday service")}
+{attendanceWeekly({week},"Sunday school")}
+{attendanceWeekly({week},"House fellowship")}
+{attendanceWeekly({week},"Tuesday service")}
+{attendanceWeekly({week},"Thursday service")}
+{attendanceWeekly({week},"Friday night vigil")}
+</>
+}
+
+      </tbody>
+    </table>
+      }
+    
 
 <table ref={tableRef}>
     <tbody>
@@ -1735,6 +1915,10 @@ height:auto ;
 padding-bottom:216px ;
 position:relative ;
 
+@media only screen and (max-width: 480px){
+  padding-bottom:45px ;
+}
+
 `
 const Main = styled(motion.div)`
 width:auto ;
@@ -1920,7 +2104,8 @@ flex-direction:column ;
         border:2px solid ${darkColor} ;
 
         &::placeholder{
-            color:${darkColor} ;  
+
+            color:transparent ;
         }
         &::-webkit-calendar-picker-indicator{
             cursor: pointer;
@@ -2107,10 +2292,286 @@ table{
     }
 }
 }
+
+@media only screen and (max-width: 480px){
+  margin:0 ;
+  h2{
+    font-size:25px ;
+  }
+  .intro{
+    width:100% ;
+    height: 625px;
+    border:1px solid black ;
+    background:linear-gradient( rgba(20,83,45,.65), rgba(20,83,45,.65)),url(${welcomeImg}) ;
+    background-size:cover ;
+    background-position:center ;
+    display:flex ;
+    flex-direction:column ;
+    align-items:center ;
+    justify-content:center ;
+    gap:35px;
+    .welcome{
+      justify-content:center ;
+      align-items:center ;
+      width:100%;
+      height:auto ;
+      h1{
+        padding:0 ;
+        text-align:center ;
+        position:initial ;
+        width:90% ;
+        font-size:25px ;
+        font-family: 'Helvetica Neu Bold',sans-serif;
+        transform: translateY(0);
+      }
+      .img{
+        display:none ;
+      }
+    }
+    .introtext{
+      font-size:25px ;
+      font-family: 'Helvetica Neu Bold', sans-serif;
+    }
+
+  .buttons{
+    width:80% ;
+    gap:26px;
+a{
+  .button{
+      font-size:16px ;
+      text-align:center ;
+    }
+}
+    
+  }
+  }
+  #main-form{
+    width: 90%;
+    align-items:center ;
+    margin:0 auto ;
+    margin-top:45px ;
+
+    .main{
+      gap:65px;
+      align-items:center ;
+
+
+      .mini-form{
+        align-items:center ;
+       width:100% ;
+       gap:30px;
+
+        .title{
+          width:100% ;
+          align-items:center ;
+          h3{
+            font-size:25px ;
+          }
+        }
+
+        .form{
+          width:100% ;
+          .input{
+            width:100% ;
+            h4{
+              display:none ;
+            }
+            select,input{
+              width:100% ;
+              border-radius:5px ;
+              font-size:20px ;
+              &::placeholder{
+                color:${darkColor} ; 
+              }
+            }
+          }
+         
+        }
+        button{
+          border-radius:5px ;
+            width:100% ;
+            font-size:16px ;
+            height: 50px;
+          }
+      }
+    }
+  }
+  #reports{
+    width:90% ;
+    margin:0 auto ;
+    margin-top:65px ;
+    gap:35px;
+
+    .report-section{
+      width: 100%;
+      gap:35px;
+      align-items:center ;
+
+      p{
+        font-size: 15px;
+        text-align:center ;
+      }
+      .settings{
+        width: 90%;
+        height: 40px;
+        gap:5px;
+
+        h4{
+          font-size:16px ;
+        }
+        input,button{
+          border-radius:5px ;
+        }
+        button{
+          font-size:13px ;
+          
+        }
+        input{
+          padding:0 10px ;
+        }
+      }
+
+      .table{
+        width: 100%;
+
+        table{
+          font-size:13px ;
+        }
+      }
+
+      
+    }
+
+    .buttons{
+        width:100% ;
+        gap:35px;
+        height: 50px;
+        button{
+          font-size:13px ;
+          height:100% ;
+          border-radius:5px ;
+        }
+      }
+  }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 768px){
+  margin:0 ;
+  h2{
+    font-size:25px ;
+  }
+  .intro{
+    width:100% ;
+.welcome{
+  background:linear-gradient( rgba(20,83,45,.25), rgba(20,83,45,.25)),url(${welcomeImg}) ;
+    background-size:cover ;
+    background-position:center ;
+  width: 100%;
+  justify-content:center ;
+  gap:40px;
+  .img{
+   display:none ;
+  }
+  h1{
+    font-size:39px ;
+    left:5% ;
+    line-height:47px ;
+    width:40% ;
+  }
+}
+.introtext{
+  font-size:31px ;
+  margin-left:24px ;
+}
+.buttons{
+  width: 80%;
+  height: 50px;
+  margin-left:24px;
+  
+  a .button{
+    border-radius:5px ;
+    font-size:20px ;
+  }
+}
+  }
+  #main-form{
+    margin-top:90px ;
+    width:80% ;
+    margin-left:24px ;
+    h2{
+      font-size:31px ;
+    }
+    .main{
+      border:1px solid black ;
+      width: 100%;
+      gap:75px;
+      .mini-form{
+        width:100% ;
+        .title{
+          width:100% ;
+         h3{ font-size:25px ;}
+        }
+        .form{
+          width:100% ;
+
+          .input{
+            width:100% ;
+            height: 50px;
+
+            h4{
+              font-size:25px ;
+            }
+            input,select{
+              width:70%;
+              border-radius:5px ;
+            }
+          }
+        }
+
+        button{
+          width: 35%;
+          height: 50px;
+          font-size:25px ;
+          border-radius:5px ;
+        }
+      }
+    }
+  }
+  #reports{
+    width:90% ;
+    margin:0 auto ;
+    margin-top:65px ;
+    gap:35px;
+
+   .report-section{
+    width:100% ;
+    gap:35px;
+    h2{
+      font-size:31px ;
+    }
+    p{
+      font-size:25px ;
+    }
+    .settings{
+      height: 50px;
+      gap:26px;
+      h4,button{
+        font-size:25px ;
+      }
+    }
+   
+   }
+   .buttons{
+      height: 50px;
+      gap:75px;
+      button{font-size:25px ;}
+    }
+  }
+}
 `
 const StyledAlert = styled(motion.div)`
 width:100% ;
-height: 100vh;
+height: 100%;
 position:fixed ;
 top:0 ;
 left:0 ;
@@ -2182,11 +2643,57 @@ transition:.2s ease-in ;
         }
     }
 }
+
+
+@media only screen and (max-width: 480px){
+  .main{
+    width:80% ;
+    height:60% ;
+    .flex{
+      align-items:center ;
+
+      h4{font-size:20px ; }
+      p{
+        font-size:25px ; 
+      text-align:center;
+    }
+      .buttons{
+        padding:0 ;
+         height:50px ;
+        gap:20px;
+        button{
+          height:100% ;
+          border-radius:5px ;
+          font-size:16px ;
+        }
+      }
+    }
+  }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 768px){
+  .main{
+    width: 90%;
+    height: 80%;
+    .flex{
+      align-items:center ;
+
+      p{
+        text-align:center ;
+      }
+      .buttons{
+        button{
+          font-size:20px ;
+        }
+      }
+    }
+  }
+}
 `
 
 const StyledEdit = styled(motion.div)`
 width:100% ;
-height: 100vh;
+height: 100%;
 position:fixed ;
 top:0 ;
 left:0 ;
@@ -2354,5 +2861,96 @@ height:100% ;
 }
     }
 }
+
+@media only screen and (max-width: 480px){
+
+  .main{
+    width: 80%;
+
+    .flex{
+      align-items:center ;
+      
+
+      .title{
+        align-items:center ;
+        gap:15px;
+
+        h3{font-size:20px;}
+      }
+
+      .form{
+        width: 100%;
+        padding:0 ;
+        .inner{
+          
+          .input{
+            width:100% ;
+            height:50px ;
+            h4{display:none;}
+            input,select{
+              width:100% ;
+              height:100% ;
+              font-size:16px ;
+            }
+          }
+        }
+      }
+
+      .buttons{
+        height:50px ;
+        gap:25px;
+        button{
+          height:100% ;
+          font-size:16px ;
+          
+        }
+      }
+    }
+  }
+}
+@media only screen and (min-width: 481px) and (max-width: 768px){
+  height: 100%;
+  .main{
+    width:80% ;
+
+    .flex{
+      
+      .title{
+        gap:16px;
+        h3{
+          font-size:25px ;
+        }
+      }
+.form{
+
+  width:100% ;
+  padding:0 ;
+  .inner{
+    align-items:center ;
+    .input{
+      width:100% ;
+      height:50px ;
+
+      h4,input,select{
+        font-size:25px ;
+      }
+      input, select{
+        width:70% ;
+      }
+      
+    }
+  }
+}
+.buttons{
+  height: 50px;
+  button{
+    height: 100%;
+    font-size:25px ;
+  }
+}
+    }
+  }
+}
+
 `
 export default Home

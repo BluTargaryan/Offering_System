@@ -48,6 +48,7 @@ padding-left:22px ;
     width:215px ;
     height:20px ;
     display:flex ;
+    align-items:center ;
     justify-content:space-between ;
     cursor: pointer;
     
@@ -77,6 +78,36 @@ padding-left:22px ;
     
     &:hover{
         width: 180px;
+    }
+}
+
+@media only screen and (max-width: 480px){
+    .logo{
+        width: 150px;
+        
+
+        span{
+            font-size:13px ;
+        }
+    }
+    .logout{
+        width: 20%;
+        font-size:13px ;
+    }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 768px){
+    .logo{
+        width: 200px;
+        
+
+        span{
+            font-size:16px ;
+        }
+    }
+    .logout{
+        width: 168px;
+        font-size:20px ;
     }
 }
 `

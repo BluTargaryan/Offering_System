@@ -33,10 +33,11 @@ align-items:center ;
 justify-content:center ;
 
 .logo{
-    width:215px ;
+    width:220px ;
     height:20px ;
     display:flex ;
     justify-content:space-between ;
+    align-items: center;
     
 
     img{
@@ -49,6 +50,29 @@ justify-content:center ;
         font-family:'HelveticaNeue Bold', sans-serif ;
     }
 }
+
+@media only screen and (max-width: 480px){
+    .logo{
+        width: 150px;
+        
+
+        span{
+            font-size:13px ;
+        }
+    }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 768px){
+    .logo{
+        width: 200px;
+        
+
+        span{
+            font-size:16px ;
+        }
+    }
+}
+
 `
 
 export default Nav;

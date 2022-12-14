@@ -94,7 +94,7 @@ justify-content:flex-end ;
 align-items: center;
 padding: 0px;
 gap: 76px;
-width: 471px;
+width: 70%;
 
 /*--Input error class--*/
 .redded{
@@ -159,6 +159,67 @@ button{
     }
 }
     }
+}
+
+@media only screen and (max-width: 480px){
+
+    .form-section{
+        width:100% ;
+        padding:0 25px ;
+
+        form{
+            width:325px ;
+            gap:40px;
+            .title{
+                align-items:center ;
+                height: 46px;
+            }
+        }
+    }
+}
+
+@media only screen and (min-width: 481px) and (max-width: 768px){
+justify-content:center ;
+align-items:center ;
+padding:0 25px ;
+
+.form-section{
+    width:586px;
+    height: 575px;
+    padding:0 25px ;
+
+
+    form{
+        width: 470px;
+        gap:76px;
+    }
+}
+}
+
+@media only screen and (min-width: 769px) and (max-width: 1024px){
+justify-content:center ;
+align-items:center ;
+
+.form-section{
+    
+    width:586px;
+    height: 575px;
+
+    form{
+        width: 470px;
+        gap:76px;
+    }
+}
+}
+
+@media only screen and (min-width: 1025px) and (max-width: 1200px){
+
+
+.form-section{
+    form{
+        width: 70%;
+    }
+}
 }
 `
 
