@@ -1,14 +1,14 @@
 
 
 
-const TableWeek = ({name,totalAmount,percent,remitAmount}) =>{
+const TableWeek = ({name,totalAmount}) =>{
 
     
     return(
       <>
        <tr className="tr">
       <td>{name}</td>
-      <td id="remitWeek">{totalAmount}</td>
+      <td className="remitWeek">{totalAmount}</td>
   </tr>
       </>
     )
