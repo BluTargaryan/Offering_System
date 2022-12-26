@@ -14,7 +14,7 @@ const Nav = () =>{
         <StyledNav>
             <div className="logo">
                 <img src={logo} alt="Logo " />
-                <span>Offering system</span>
+                <span>Records system</span>
             </div>
         </StyledNav>
     )

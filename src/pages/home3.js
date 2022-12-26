@@ -25,9 +25,9 @@ const darkenColor = "#0A2715"
 
 
 
-const Home = ()=>{
- //state for records
- const [records, setRecords] = useState([])
+const Home3 = ()=>{
+ //state for records2
+ const [records2, setRecords2] = useState([])
    //State
    const [period, setPeriod] = useState(0)
     //TO handle table section
@@ -37,7 +37,7 @@ const Home = ()=>{
 
     const { onDownload } = useDownloadExcel({
         currentTableRef: tableRef.current,
-        filename: 'Church records',
+        filename: 'Church records2',
         sheet: 'Sheet 1'
     })
 
@@ -50,7 +50,7 @@ const Home = ()=>{
 //to generate new period
 const generatePeriod = async()=>{
     let newPeriod = period+1
-    const record =await addDoc(recordsRef, {
+    const record =await addDoc(records2Ref, {
         created: Timestamp.now(),
         section:"offerings",
         period:newPeriod,
@@ -71,16 +71,16 @@ const generatePeriod = async()=>{
   
 
     
-    //to check if records is filled
+    //to check if records2 is filled
     const [isFetched, setIsFetched] = useState(false);
     //to get period number
 
- /* function to get all records from firestore in realtime */ 
+ /* function to get all records2 from firestore in realtime */ 
 
  useEffect(() => {
-        const q = query(collection(db, 'records'), orderBy('period', 'asc'))
+        const q = query(collection(db, 'records2'), orderBy('period', 'asc'))
         onSnapshot(q, (querySnapshot) => {
-          setRecords(querySnapshot.docs.map(doc => ({
+          setRecords2(querySnapshot.docs.map(doc => ({
             id: doc.id,
             data: doc.data()
           })))
@@ -91,8 +91,9 @@ const generatePeriod = async()=>{
 
   useEffect(()=>{
    if(isFetched){
+    console.log(records2)
     try{
-      let gotPeriod= records[(records.length)-1].data.period
+      let gotPeriod= records2[(records2.length)-1].data.period
       setPeriod(gotPeriod)
     }
    catch{
@@ -104,8 +105,8 @@ const generatePeriod = async()=>{
 
 
 
-    //create collection records and add d
-    const recordsRef = collection(db, 'records');
+    //create collection records2 and add d
+    const records2Ref = collection(db, 'records2');
 //to put offering data
     const offeringSubmit = async (e)=>{
         e.preventDefault()
@@ -125,7 +126,7 @@ try{
         amount=0
        }
 
-       const record =await addDoc(recordsRef, {
+       const record =await addDoc(records2Ref, {
         created: Timestamp.now(),
         section:"offerings",
         period:period,
@@ -176,7 +177,7 @@ try{
        }
 
 
-       const record =await addDoc(recordsRef, {
+       const record =await addDoc(records2Ref, {
         created: Timestamp.now(),
         section:"attendance",
         period:period,
@@ -284,10 +285,10 @@ try{
         }
 
 
-       const record =await addDoc(recordsRef, {
+       const record =await addDoc(records2Ref, {
         created: Timestamp.now(),
         section:"general",
-        event:"No event, just records",
+        event:"No event, just records2",
         period:period,
         date:attendance_date,
         births:births,
@@ -354,12 +355,12 @@ try{
         document.getElementById('specifier').style.display="none"
 
         //to set deletion id
-        for(let x=0;x<records.length;x++){
-            let testDate = records[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records[x].data.event
-            let testSection = records[x].data.section
+        for(let x=0;x<records2.length;x++){
+            let testDate = records2[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records2[x].data.event
+            let testSection = records2[x].data.section
             if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                denoteId=records[x].id
+                denoteId=records2[x].id
                 break
             }
            
@@ -371,12 +372,12 @@ try{
             document.getElementById('specSection').selectedIndex=0
             //setup pre data
            let id
-            for(let x=0;x<records.length;x++){
-                let testDate = records[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records[x].data.event
-                let testSection = records[x].data.section
+            for(let x=0;x<records2.length;x++){
+                let testDate = records2[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records2[x].data.event
+                let testSection = records2[x].data.section
                 if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    id=records[x].id
+                    id=records2[x].id
                     break
                 }  
             }
@@ -396,8 +397,8 @@ try{
             let week_select_length = select.length
             let weekIndex
 
-            for(let x=0;x<records.length;x++){
-                let recWeek=records[x].data.week
+            for(let x=0;x<records2.length;x++){
+                let recWeek=records2[x].data.week
                 let isEqual = false
                 for(let x=0;x<week_select_length;x++){
                 if(parseInt(week_select[x].text)===recWeek){
@@ -415,24 +416,24 @@ try{
               document.getElementById('worker-date').value=specDownDate.toISOString().substring(0,10)
               //set amount
 
-              for(let x=0;x<records.length;x++){
-                let testDate = records[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records[x].data.event
-                let testSection = records[x].data.section
+              for(let x=0;x<records2.length;x++){
+                let testDate = records2[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records2[x].data.event
+                let testSection = records2[x].data.section
                 if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    document.getElementById('worker-amount').value=records[x].data.amount
+                    document.getElementById('worker-amount').value=records2[x].data.amount
                     break
                 }
                
             }
             //set offering type
 
-            for(let x=0;x<records.length;x++){
-                let testDate = records[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records[x].data.event
-                let testSection = records[x].data.section
+            for(let x=0;x<records2.length;x++){
+                let testDate = records2[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records2[x].data.event
+                let testSection = records2[x].data.section
                 if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    document.getElementById('worker-type').value=records[x].data.type
+                    document.getElementById('worker-type').value=records2[x].data.type
                     break
                 }
                
@@ -440,12 +441,12 @@ try{
 
             //set payment type
 
-            for(let x=0;x<records.length;x++){
-                let testDate = records[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records[x].data.event
-                let testSection = records[x].data.section
+            for(let x=0;x<records2.length;x++){
+                let testDate = records2[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records2[x].data.event
+                let testSection = records2[x].data.section
                 if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    document.getElementById('worker-payment').value=records[x].data.payment_type
+                    document.getElementById('worker-payment').value=records2[x].data.payment_type
                     break
                 }
                
@@ -475,8 +476,8 @@ try{
          let week_select_length = select.length
          let weekIndex
 
-         for(let x=0;x<records.length;x++){
-             let recWeek=records[x].data.week
+         for(let x=0;x<records2.length;x++){
+             let recWeek=records2[x].data.week
              let isEqual = false
              for(let x=0;x<week_select_length;x++){
              if(parseInt(week_select[x].text)===recWeek){
@@ -493,56 +494,56 @@ try{
            //set date
            document.getElementById('worked-date').value=specDownDate.toISOString().substring(0,10)
            //set men
-           for(let x=0;x<records.length;x++){
-             let testDate = records[x].data.date.toDate().toLocaleDateString()
-             let testEvent = records[x].data.event
-             let testSection = records[x].data.section
+           for(let x=0;x<records2.length;x++){
+             let testDate = records2[x].data.date.toDate().toLocaleDateString()
+             let testEvent = records2[x].data.event
+             let testSection = records2[x].data.section
              if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                 document.getElementById('worked-men').value=records[x].data.men
+                 document.getElementById('worked-men').value=records2[x].data.men
                  break
              }
             
          }
           //set women
-          for(let x=0;x<records.length;x++){
-            let testDate = records[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records[x].data.event
-            let testSection = records[x].data.section
+          for(let x=0;x<records2.length;x++){
+            let testDate = records2[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records2[x].data.event
+            let testSection = records2[x].data.section
             if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-women').value=records[x].data.women
+                document.getElementById('worked-women').value=records2[x].data.women
                 break
             }
            
         }
          //set children
-         for(let x=0;x<records.length;x++){
-            let testDate = records[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records[x].data.event
-            let testSection = records[x].data.section
+         for(let x=0;x<records2.length;x++){
+            let testDate = records2[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records2[x].data.event
+            let testSection = records2[x].data.section
             if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-children').value=records[x].data.children
+                document.getElementById('worked-children').value=records2[x].data.children
                 break
             }
            
         }
          //set newcomer
-         for(let x=0;x<records.length;x++){
-            let testDate = records[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records[x].data.event
-            let testSection = records[x].data.section
+         for(let x=0;x<records2.length;x++){
+            let testDate = records2[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records2[x].data.event
+            let testSection = records2[x].data.section
             if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-newcomers').value=records[x].data.newcomer
+                document.getElementById('worked-newcomers').value=records2[x].data.newcomer
                 break
             }
            
         }
         //set convert
-        for(let x=0;x<records.length;x++){
-            let testDate = records[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records[x].data.event
-            let testSection = records[x].data.section
+        for(let x=0;x<records2.length;x++){
+            let testDate = records2[x].data.date.toDate().toLocaleDateString()
+            let testEvent = records2[x].data.event
+            let testSection = records2[x].data.section
             if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-converts').value=records[x].data.convert
+                document.getElementById('worked-converts').value=records2[x].data.convert
                 break
             }
            
@@ -565,28 +566,28 @@ try{
       //set date
       document.getElementById('general-date').value=specDownDate.toISOString().substring(0,10)
       //set all data
-      for(let x=0;x<records.length;x++){
-        let testDate = records[x].data.date.toDate().toLocaleDateString()
-        let testEvent = records[x].data.event
-        let testSection = records[x].data.section
+      for(let x=0;x<records2.length;x++){
+        let testDate = records2[x].data.date.toDate().toLocaleDateString()
+        let testEvent = records2[x].data.event
+        let testSection = records2[x].data.section
         if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-            document.getElementById('general-births').value=records[x].data.births
-            document.getElementById('general-deaths').value=records[x].data.deaths
-            document.getElementById('general-marriages').value=records[x].data.marriages
-            document.getElementById('general-converts').value=records[x].data.converts
-            document.getElementById('general-firsttimers').value=records[x].data.firsttimers
-            document.getElementById('general-workers').value=records[x].data.evang_workers_inattendance
-            document.getElementById('general-souls').value=records[x].data.souls_won
-            document.getElementById('general-hcentres').value=records[x].data.house_fellowship_centres
-            document.getElementById('general-uminst').value=records[x].data.unordained_ministers
-            document.getElementById('general-nmembers').value=records[x].data.newly_baptised_members
-            document.getElementById('general-asp').value=records[x].data.avg_sp_attendance
-            document.getElementById('general-anv').value=records[x].data.avg_nv_attendance
-            document.getElementById('general-bw').value=records[x].data.baptised_workers
-            document.getElementById('general-deacons').value=records[x].data.deacons
-            document.getElementById('general-apastor').value=records[x].data.asst_pastors
-            document.getElementById('general-fpastor').value=records[x].data.full_pastors
-            document.getElementById('general-nworkers').value=records[x].data.newly_baptised_workers
+            document.getElementById('general-births').value=records2[x].data.births
+            document.getElementById('general-deaths').value=records2[x].data.deaths
+            document.getElementById('general-marriages').value=records2[x].data.marriages
+            document.getElementById('general-converts').value=records2[x].data.converts
+            document.getElementById('general-firsttimers').value=records2[x].data.firsttimers
+            document.getElementById('general-workers').value=records2[x].data.evang_workers_inattendance
+            document.getElementById('general-souls').value=records2[x].data.souls_won
+            document.getElementById('general-hcentres').value=records2[x].data.house_fellowship_centres
+            document.getElementById('general-uminst').value=records2[x].data.unordained_ministers
+            document.getElementById('general-nmembers').value=records2[x].data.newly_baptised_members
+            document.getElementById('general-asp').value=records2[x].data.avg_sp_attendance
+            document.getElementById('general-anv').value=records2[x].data.avg_nv_attendance
+            document.getElementById('general-bw').value=records2[x].data.baptised_workers
+            document.getElementById('general-deacons').value=records2[x].data.deacons
+            document.getElementById('general-apastor').value=records2[x].data.asst_pastors
+            document.getElementById('general-fpastor').value=records2[x].data.full_pastors
+            document.getElementById('general-nworkers').value=records2[x].data.newly_baptised_workers
             break
         } 
     }
@@ -596,18 +597,18 @@ try{
     const editSubmitFunction = () =>{
         if(specSection==="attendance"){
             let id
-            for(let x=0;x<records.length;x++){
-                let testDate = records[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records[x].data.event
-                let testSection = records[x].data.section
+            for(let x=0;x<records2.length;x++){
+                let testDate = records2[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records2[x].data.event
+                let testSection = records2[x].data.section
                 if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    id=records[x].id
+                    id=records2[x].id
                     break
                 }
                
             }
            //update
-           const recordDocRef = doc(db, 'records', id)
+           const recordDocRef = doc(db, 'records2', id)
            try{
              updateDoc(recordDocRef, {
               event:document.getElementById('worked-event').value,
@@ -636,18 +637,18 @@ try{
         }
         if(specSection==="offerings"){
             let id
-            for(let x=0;x<records.length;x++){
-                let testDate = records[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records[x].data.event
-                let testSection = records[x].data.section
+            for(let x=0;x<records2.length;x++){
+                let testDate = records2[x].data.date.toDate().toLocaleDateString()
+                let testEvent = records2[x].data.event
+                let testSection = records2[x].data.section
                 if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    id=records[x].id
+                    id=records2[x].id
                     break
                 }
                
             }
            //update
-           const recordDocRef = doc(db, 'records', id)
+           const recordDocRef = doc(db, 'records2', id)
            try{
              updateDoc(recordDocRef, {
               event:document.getElementById('worker-event').value,
@@ -671,17 +672,17 @@ try{
         }
         if(specSection==="general"){
           let id
-          for(let x=0;x<records.length;x++){
-              let testDate = records[x].data.date.toDate().toLocaleDateString()
-              let testEvent = records[x].data.event
-              let testSection = records[x].data.section
+          for(let x=0;x<records2.length;x++){
+              let testDate = records2[x].data.date.toDate().toLocaleDateString()
+              let testEvent = records2[x].data.event
+              let testSection = records2[x].data.section
               if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                  id=records[x].id
+                  id=records2[x].id
                   break
               }
             }
                //update
-           const recordDocRef = doc(db, 'records', id)
+           const recordDocRef = doc(db, 'records2', id)
            try{
              updateDoc(recordDocRef, {
               births:parseInt(document.getElementById('general-births').value),
@@ -747,9 +748,9 @@ try{
     }
 
     const toDelete = async() =>{
-        const recordsDocRef = doc(db, 'records', denoteId)
+        const records2DocRef = doc(db, 'records2', denoteId)
         try{
-            await deleteDoc(recordsDocRef)
+            await deleteDoc(records2DocRef)
           } catch (err) {
             alert(err)
           }
@@ -760,12 +761,12 @@ try{
     //TO gET TOTAL AMOUNT FOR THE AMOUNT TYPE
     const amountTotal = (name)=>{
         let totalAmount=0
-        let length = records.length
+        let length = records2.length
 for(let x=0; x<length; x++){
-    let recName = records[x].data.type
-    let recAltName= records[x].data.payment_type
-    let recAmount = records[x].data.amount
-    let recPeriod= records[x].data.period
+    let recName = records2[x].data.type
+    let recAltName= records2[x].data.payment_type
+    let recAmount = records2[x].data.amount
+    let recPeriod= records2[x].data.period
     if(((name===recName) || (name===recAltName))&&(recPeriod===period)){
        totalAmount=totalAmount+recAmount
     }
@@ -774,11 +775,11 @@ return totalAmount
     }
 
     //Arrays to hold total data
-    const ultArray=[]
-    const array1=[] 
-    const array2=[] 
-    const array3=[] 
-    const array4=[] 
+    let ultArray=[]
+    let array1=[] 
+    let array2=[] 
+    let array3=[] 
+    let array4=[] 
     //to get remit amount
     const amountRemit = (name,percent,note)=>{
         const amount = amountTotal(name)
@@ -861,21 +862,21 @@ const absoluteTotal = () =>{
 
     //to get weekly attendance
     const attendanceWeekly = (week,event)=>{
-      let length = records.length
+      let length = records2.length
       let men = 0
       let women=0
       let children=0
       let total = 0
       for(let x=0; x<length; x++){
-        let recEvent= records[x].data.event
-        let recPeriod= records[x].data.period
-        let recWeek = records[x].data.week
-        let recSection = records[x].data.section
+        let recEvent= records2[x].data.event
+        let recPeriod= records2[x].data.period
+        let recWeek = records2[x].data.week
+        let recSection = records2[x].data.section
         let compWeek = parseInt(week)
         if(((compWeek===recWeek) && (event===recEvent)&&(period===recPeriod)&&(recSection==="attendance"))){
-          men=parseInt(records[x].data.men)
-          women=parseInt(records[x].data.women)
-          children=parseInt(records[x].data.children)
+          men=parseInt(records2[x].data.men)
+          women=parseInt(records2[x].data.women)
+          children=parseInt(records2[x].data.children)
           total = men+women+children
           break
               }
@@ -890,9 +891,9 @@ return(
   </tr>
 )
     }
-    //to get general records
-    const generalRecords = ()=>{
-      let length = records.length 
+    //to get general records2
+    const generalrecords2 = ()=>{
+      let length = records2.length 
       let births=0
 let deaths=0
 let marriages=0
@@ -912,26 +913,26 @@ let fpastor=0
 let nworkers=0
 
 for(let x=0; x<length; x++){
-  let recPeriod= records[x].data.period
-  let recSection = records[x].data.section
+  let recPeriod= records2[x].data.period
+  let recSection = records2[x].data.section
   if(((period===recPeriod)&&(recSection==="general"))){
-     births=parseInt(records[x].data.births)
-     deaths=parseInt(records[x].data.deaths)
-     marriages=parseInt(records[x].data.marriages)
-     converts=parseInt(records[x].data.converts)
-     firsttimers=parseInt(records[x].data.firsttimers)
-     workers=parseInt(records[x].data.evang_workers_inattendance)
-     souls=parseInt(records[x].data.souls_won)
-     hcentres=parseInt(records[x].data.house_fellowship_centres)
-     uminst=parseInt(records[x].data.unordained_ministers)
-     nmembers=parseInt(records[x].data.newly_baptised_members)
-     asp=parseInt(records[x].data.avg_sp_attendance)
-     anv=parseInt(records[x].data.avg_nv_attendance)
-     bworkers=parseInt(records[x].data.baptised_workers)
-     deacons=parseInt(records[x].data.deacons)
-     apastor=parseInt(records[x].data.asst_pastors)
-     fpastor=parseInt(records[x].data.full_pastors)
-     nworkers=parseInt(records[x].data.newly_baptised_workers)
+     births=parseInt(records2[x].data.births)
+     deaths=parseInt(records2[x].data.deaths)
+     marriages=parseInt(records2[x].data.marriages)
+     converts=parseInt(records2[x].data.converts)
+     firsttimers=parseInt(records2[x].data.firsttimers)
+     workers=parseInt(records2[x].data.evang_workers_inattendance)
+     souls=parseInt(records2[x].data.souls_won)
+     hcentres=parseInt(records2[x].data.house_fellowship_centres)
+     uminst=parseInt(records2[x].data.unordained_ministers)
+     nmembers=parseInt(records2[x].data.newly_baptised_members)
+     asp=parseInt(records2[x].data.avg_sp_attendance)
+     anv=parseInt(records2[x].data.avg_nv_attendance)
+     bworkers=parseInt(records2[x].data.baptised_workers)
+     deacons=parseInt(records2[x].data.deacons)
+     apastor=parseInt(records2[x].data.asst_pastors)
+     fpastor=parseInt(records2[x].data.full_pastors)
+     nworkers=parseInt(records2[x].data.newly_baptised_workers)
     break
         }
 }
@@ -963,14 +964,14 @@ return(
       //TO gET TOTAL AMOUNT FOR THE AMOUNT TYPE
       const amountTotalWeek = (name)=>{
         let totalAmount=0
-        let length = records.length
+        let length = records2.length
         let compWeek=parseInt(week)
 for(let x=0; x<length; x++){
-    let recName = records[x].data.type
-    let recAltName= records[x].data.payment_type
-    let recAmount = records[x].data.amount
-    let recPeriod= records[x].data.period
-    let recWeek= parseInt(records[x].data.week)
+    let recName = records2[x].data.type
+    let recAltName= records2[x].data.payment_type
+    let recAmount = records2[x].data.amount
+    let recPeriod= records2[x].data.period
+    let recWeek= parseInt(records2[x].data.week)
     
     if(((name===recName) || (name===recAltName))&&(recPeriod===period)&&(recWeek===compWeek)){
  
@@ -986,13 +987,13 @@ return totalAmount
 //to get total remit value
 const totalRemitWeek = ()=>{
   let totalAmount=0
-  let length = records.length
+  let length = records2.length
 for(let x=0; x<length; x++){
-let recWeek = parseInt(records[x].data.week)
+let recWeek = parseInt(records2[x].data.week)
 let compWeek = parseInt(week)
-let recAmount = records[x].data.amount
-let recPeriod= records[x].data.period
-let recSection= records[x].data.section
+let recAmount = records2[x].data.amount
+let recPeriod= records2[x].data.period
+let recSection= records2[x].data.section
 if((recPeriod===period)&&(recWeek===compWeek)&&(recSection==="offerings")){
  totalAmount=totalAmount+recAmount
 }
@@ -1028,7 +1029,7 @@ isWeekSet(false)
     return(
         <StyledHome>
 <Nav2
-name="Higher Ground"/>
+name="TBD"/>
 <Main>
 <div className="intro"  id="buttons">
 <div className="welcome">
@@ -1037,8 +1038,8 @@ name="Higher Ground"/>
 </div>
 <p className="introtext">What would you like to do?</p>
 <div className="buttons">
-<HashLink smooth to='/home/#main-form' ><div className="button">data entry</div></HashLink>
-<HashLink smooth to='/home/#reports' ><div className="button">view report</div></HashLink>
+<HashLink smooth to='/home3/#main-form' ><div className="button">data entry</div></HashLink>
+<HashLink smooth to='/home3/#reports' ><div className="button">view report</div></HashLink>
 </div>
 </div>
 
@@ -1061,7 +1062,7 @@ name="Higher Ground"/>
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just records">No event, just records</option>
+  <option value="No event, just records2">No event, just records2</option>
 </select>
 
 </div>
@@ -1188,7 +1189,7 @@ name="Higher Ground"/>
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just records">No event, just records</option>
+  <option value="No event, just records2">No event, just records2</option>
 </select>
 
 </div>
@@ -1333,7 +1334,7 @@ name="Higher Ground"/>
 <div id="reports">
     <div className="report-section">
     <h2>View report</h2>
-    <p>Put in the week number and click <span>LOAD</span> to generate weekly report. Click <span>EDIT</span> to edit records.</p>
+    <p>Put in the week number and click <span>LOAD</span> to generate weekly report. Click <span>EDIT</span> to edit records2.</p>
     <div className="settings">
 <h4>Week:</h4>
 <input id="week-selector" type="number"/>
@@ -1345,7 +1346,7 @@ name="Higher Ground"/>
       {weekset &&
       <table >
       <tbody>
-      <tr><td id="type">Offering Records (Week {week})</td></tr>
+      <tr><td id="type">Offering records2 (Week {week})</td></tr>
         <tr><td id="title">Offerings</td></tr>
         <tr>
     <th>Item Name</th>
@@ -1406,7 +1407,7 @@ name="Higher Ground"/>
 </tr>
    </>
 }
-<tr><td id="type">Attendance Records</td></tr>
+<tr><td id="type">Attendance records2</td></tr>
 <tr><td id="title">Week {week}</td></tr>
 <tr>
     <th>Event</th>
@@ -1435,7 +1436,7 @@ isFetched &&
 <table ref={tableRef}>
     <tbody>
       <>
-        <tr><td id="type">Offering Records</td></tr>
+        <tr><td id="type">Offering records2</td></tr>
         <tr><td id="title">Offerings</td></tr>
 <tr>
     <th>Item Name</th>
@@ -1894,7 +1895,7 @@ remitAmount={amountRemit("RUN Educational Fund",1,"fixed")}
 </>
 
 <>
-<tr><td id="type">Attendance Records</td></tr>
+<tr><td id="type">Attendance records2</td></tr>
 <tr><td id="title">Week 1</td></tr>
 <tr>
     <th>Event</th>
@@ -1973,10 +1974,10 @@ isFetched &&
 }
 </>
 <>
-<tr><td id="type">General Records</td></tr>
+<tr><td id="type">General records2</td></tr>
 {isFetched &&
 <>
-{generalRecords()}
+{generalrecords2()}
 </>
 }
 </>
@@ -2038,7 +2039,7 @@ isFetched &&
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just records">No event, just records</option>
+  <option value="No event, just records2">No event, just records2</option>
 </select>
 
 </div>
@@ -2089,7 +2090,7 @@ isFetched &&
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just records">No event, just records</option>
+  <option value="No event, just records2">No event, just records2</option>
 </select>
 
 </div>
@@ -2218,7 +2219,7 @@ isFetched &&
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just records">No event, just records</option>
+  <option value="No event, just records2">No event, just records2</option>
 </select>
 
 </div>
@@ -3426,4 +3427,4 @@ height:100% ;
 }
 
 `
-export default Home
+export default Home3

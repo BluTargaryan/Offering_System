@@ -4,6 +4,8 @@ import {  useNavigate } from "react-router-dom";
 
 import React,{useEffect} from "react";
 import { password } from "../password";
+import {password2} from "../password2"
+import {password3} from "../password3"
 
 import Nav from '../comps/navlogin'
 import bgimg from '../img/loginimg_desktop.png' 
@@ -35,14 +37,27 @@ const loginFunc = (e) =>{
     e.preventDefault();
     //check if password is equal to password
    let inputValue = document.getElementById('password').value
-   if(inputValue!==password){
+ 
+   if((inputValue===password)||(inputValue===password2)||(inputValue===password3)){
+    if(inputValue===password){
+        //navigate to home
+        navigate('/home')
+           }
+            if(inputValue===password2){
+        //navigate to home
+        navigate('/home2')
+           }
+           if(inputValue===password3){
+            //navigate to home
+            navigate('/home3')
+               }
+   }else{
     document.getElementById('password').classList.add('redded')
     document.getElementById('password').value=""
     document.getElementById('password').placeholder="Incorrect password"
-   }else{
-//navigate to home
-navigate('/home')
-   }
+    }
+   
+
 }
 
     return(

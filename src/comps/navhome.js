@@ -9,7 +9,7 @@ const darkerColor= "#0A2715";
 const logoColor= "#F3F0FF";
 
 
-const Nav2 = () =>{
+const Nav2 = ({name}) =>{
  //set navigate const
  const navigate= useNavigate()
 
@@ -23,7 +23,7 @@ navigate('/')
         <StyledNav>
             <div className="logo">
                 <img src={logo} alt="Logo " />
-                <span>Offering system</span>
+                <span>{name}</span>
             </div>
             <span className="logout" onClick={logoutFunc}>Log out</span>
         </StyledNav>
@@ -45,11 +45,12 @@ color:${logoColor} ;
 padding-left:22px ;
 
 .logo{
-    width:215px ;
+    width:auto ;
     height:20px ;
     display:flex ;
     align-items:center ;
     justify-content:space-between ;
+    gap:20px;
     cursor: pointer;
     
 
@@ -83,7 +84,7 @@ padding-left:22px ;
 
 @media only screen and (max-width: 480px){
     .logo{
-        width: 150px;
+        
         
 
         span{
@@ -98,7 +99,7 @@ padding-left:22px ;
 
 @media only screen and (min-width: 481px) and (max-width: 768px){
     .logo{
-        width: 200px;
+       
         
 
         span{

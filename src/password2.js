@@ -1,0 +1,1 @@
+export const password2 = "hgoffering2"
