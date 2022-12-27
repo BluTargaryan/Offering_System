@@ -1028,7 +1028,7 @@ const Home2 = () => {
   return (
     <StyledHome>
       <Nav2
-        name="Power and Glory" />
+        name="power sanctuary" />
       <Main>
         <div className="intro" id="buttons">
           <div className="welcome">

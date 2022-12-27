@@ -1029,7 +1029,7 @@ isWeekSet(false)
     return(
         <StyledHome>
 <Nav2
-name="TBD"/>
+name="great shepherd"/>
 <Main>
 <div className="intro"  id="buttons">
 <div className="welcome">
