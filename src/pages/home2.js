@@ -1033,7 +1033,7 @@ const Home2 = () => {
         <div className="intro" id="buttons">
           <div className="welcome">
             <div className="img" />
-            <h1>Welcome to the rccg offering system</h1>
+            <h1>Welcome to the rccg records system</h1>
           </div>
           <p className="introtext">What would you like to do?</p>
           <div className="buttons">
