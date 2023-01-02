@@ -1019,8 +1019,9 @@ return(
         let type = records[x].data.type
         let amount= records[x].data.amount
         let desc= records[x].data.desc
+        let per= records[x].data.period
         let date= records[x].data.date.toDate()
-        if(section==="rebate"){
+        if((section==="rebate")&&(period==per)){
         if(type==="Income"){
           incomeArr.push(amount)
          returnArr.push(<tr>
@@ -1082,8 +1083,10 @@ return(
         let type = records[x].data.type
         let amount= records[x].data.amount
         let desc= records[x].data.desc
+        let per= records[x].data.period
         let date= records[x].data.date.toDate()
-        if(section==="rebate"){
+        
+        if((section==="rebate")&&(period==per)){
         if(type==="Income"){
           incomeArr2.push(amount)
        
