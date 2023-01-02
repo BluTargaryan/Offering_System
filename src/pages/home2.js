@@ -1301,7 +1301,7 @@ name="power sanctuary"/>
 <div className="intro"  id="buttons">
 <div className="welcome">
     <div className="img"/>
-<h1>Welcome to the rccg recordsdu system</h1>
+<h1>Welcome to the rccg records system</h1>
 </div>
 <p className="introtext">Rebate balance: {rebateIntro()} <br/> Total to remit: {introRemitCalc()}</p>
 
@@ -2700,6 +2700,7 @@ position:relative ;
 }
 
 `
+
 const Main = styled(motion.div)`
 width:auto ;
 height:auto ;
@@ -2768,6 +2769,7 @@ color:${darkColor} ;
     .introtext{
 font-size:31px ;
 margin-top:52px ;
+font-weight:bold ;
 
     }
     .buttons{
@@ -2843,7 +2845,7 @@ flex-direction:column ;
     h3{
     font-size:31px ;
     font-family: 'HelveticaNeue Medium', sans-serif;
-    font-weight:normal ;
+    font-weight:bolder;
 
    span{
 font-size:25px ;
@@ -3115,7 +3117,7 @@ table{
       }
     }
     .introtext{
-      font-size:25px ;
+      font-size:24px ;
       font-family: 'Helvetica Neu Bold', sans-serif;
       text-align:center ;
     }
