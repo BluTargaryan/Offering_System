@@ -13,6 +13,7 @@ import TableFixed from "../comps/tablefixed";
 import TableItem from "../comps/tableitem";
 import TableLevies from "../comps/tablelevies";
 import TableWeek from "../comps/tableweek"
+import SimpleDateTime  from 'react-simple-timestamp-to-date';
 
 
 
@@ -32,8 +33,9 @@ const Home = ()=>{
    const [period, setPeriod] = useState(0)
     //TO handle table section
     const tableRef = useRef(null);
+    //
 
-   
+
 
     const { onDownload } = useDownloadExcel({
         currentTableRef: tableRef.current,
@@ -101,6 +103,8 @@ const generatePeriod = async()=>{
    }
   })
 
+
+  
 
 
 
@@ -334,6 +338,43 @@ try{
 }catch{
     alert("Please fill out ALL the fields correctly")
 }
+    }
+
+    //to put rebate data
+    const rebateSubmit = async (e)=>{
+      e.preventDefault()
+      try{
+        //create values for input data
+        let date = new Date(document.getElementById('date-rebate').value)
+        let desc = document.getElementById('desc-rebate').value
+        let transtype = document.getElementById('transty-rebate').value
+        let amount = document.getElementById('amount-rebate').value
+
+        if(!desc){
+          desc="none"
+        }
+        if(!amount){
+          amount=0
+        }
+
+        const record =await addDoc(recordsRef, {
+          created: Timestamp.now(),
+          section:"rebate",
+          period:period,
+          date:date,
+          desc:desc,
+          type:transtype,
+          amount:amount
+        })
+
+        //clear up data after
+        document.getElementById('date-rebate').value=0
+        document.getElementById('desc-rebate').value=""
+        document.getElementById('transty-rebate').selectedIndex=0
+        document.getElementById('amount-rebate').value=""
+      }catch{
+        alert("Please fill out ALL the fields correctly")
+      }
     }
 
     //Edit section
@@ -799,6 +840,8 @@ return totalAmount
         return remit  
     }
 
+   
+
  
 //to get total remit value
 const totalRemit = ()=>{
@@ -854,9 +897,12 @@ const absoluteTotal = () =>{
   for(let x=0;x<ultArray.length;x++){
     remitTotal=remitTotal+ultArray[x]
   }
-  ultArray.push(remitTotal)
+
   return remitTotal
 }
+
+
+
 
 
     //to get weekly attendance
@@ -959,7 +1005,228 @@ return(
   </>
 )
     } 
+    let incomeArr=[]
+    let withArr=[]
+    let returnArr=[]
+    let incomeBalance=0
+    let withBalance=0
+    let returnBalance=0
+    //to get rebate data
+    const rebateRecords = ()=>{
+      
+      for (let x=0;x<records.length;x++){
+        let section= records[x].data.section
+        let type = records[x].data.type
+        let amount= records[x].data.amount
+        let desc= records[x].data.desc
+        let date= records[x].data.date.toDate()
+        if(section==="rebate"){
+        if(type==="Income"){
+          incomeArr.push(amount)
+         returnArr.push(<tr>
+          <td>  <SimpleDateTime dateFormat="DMY" dateSeparator="/" showTime="0"  timeSeparator=":">{date}</SimpleDateTime></td>
+          <td>{desc}</td>
+          <td>{amount}</td>
+          <td></td>
+          <td>{amount}</td>
+         </tr>)
+        }
+        if(type==="Withdrawal"){
+          withArr.push(amount)
+         returnArr.push(<tr>
+          <td>  <SimpleDateTime dateFormat="DMY" dateSeparator="/" showTime="0"  timeSeparator=":" >{date}</SimpleDateTime></td>
+          <td>{desc}</td>
+          <td></td>
+          <td>{amount}</td>
+          <td>-{amount}</td>
+         </tr>)
+        }
+        }
+      }
+      return returnArr
+    }
+    
+    const rebateBalance=()=>{
+      
+      for(let x=0;x<incomeArr.length;x++){
+        incomeBalance=incomeBalance+parseInt(incomeArr[x])
+        
+      }
+  
+     
+      for(let x=0;x<withArr.length;x++){
+        withBalance=withBalance+parseInt(withArr[x])
+      }
+      returnBalance=incomeBalance-withBalance
+        return(
+          <tr>
+            <td></td>
+            <td>Bank Balance</td>
+            <td>{incomeBalance}</td>
+            <td>{withBalance}</td>
+            <td>{returnBalance}</td>
+           </tr>
+        )
+      
+    }
 
+    const rebateIntro=()=>{
+      let incomeArr2=[]
+      let withArr2=[]
+      let incomeBalance2=0
+      let withBalance2=0
+      let returnBalance2=0
+
+      for (let x=0;x<records.length;x++){
+        let section= records[x].data.section
+        let type = records[x].data.type
+        let amount= records[x].data.amount
+        let desc= records[x].data.desc
+        let date= records[x].data.date.toDate()
+        if(section==="rebate"){
+        if(type==="Income"){
+          incomeArr2.push(amount)
+       
+        }
+        if(type==="Withdrawal"){
+          withArr2.push(amount)
+
+        }
+        }
+      }
+
+      for(let x=0;x<incomeArr2.length;x++){
+        incomeBalance2=incomeBalance2+parseInt(incomeArr2[x])
+        
+      }
+  
+     
+      for(let x=0;x<withArr2.length;x++){
+        withBalance2=withBalance2+parseInt(withArr2[x])
+      }
+      returnBalance2=incomeBalance2-withBalance2
+        return returnBalance2
+    }
+    //for remit calc
+     //Arrays to hold total data
+     const ultArrayi=[]
+     const array1i=[] 
+     const array2i=[] 
+     const array3i=[] 
+     const array4i=[] 
+         //to get remit amount
+    const amountRemiti = (name,percent,note)=>{
+      const amount = amountTotal(name)
+      const remit = (percent*amount)
+      if(note==="table"){
+        array1i.push(remit)
+      }
+      if(note==="item"){
+        array2i.push(remit)
+      }
+      if(note==="fixed"){
+        array3i.push(remit)
+      }
+      if(note==="levies"){
+        array4i.push(remit)
+      }
+
+  }
+
+  const totalRemiti = (array)=>{
+    let remitTotal = 0
+    for(let x=0;x<array.length;x++){
+      remitTotal=remitTotal+array[x]
+    }
+    ultArrayi.push(remitTotal)
+   
+}
+//to get tithe rebate
+const tRebatei = ()=>{
+  let minTithe = amountTotal("Minister's tithe")
+  let genTithe = amountTotal("General tithe")
+  let rebate = .20*((.36*minTithe)+(.36*genTithe))
+  ultArrayi.push(rebate)
+}
+const absoluteTotali = () =>{
+  let remitTotal = 0
+  for(let x=0;x<ultArrayi.length;x++){
+    remitTotal=remitTotal+ultArrayi[x]
+  }
+
+  return remitTotal
+}
+  const introRemitCalc = ()=>{
+    amountRemiti("Offerings",.64,"table")
+    amountRemiti("General tithe",.64,"table")
+    amountRemiti("Minister's tithe",.64,"table")
+    amountRemiti("Sunday school",1,"table")
+    amountRemiti("Sunday love offering",.10,"table")
+    amountRemiti("Thanksgiving",.70,"table")
+    amountRemiti("CRM",.50,"table")
+    amountRemiti("Children offering",.35,"table")
+    amountRemiti("First fruit",.90,"table")
+    amountRemiti("Gospel fund",.25,"table")
+    amountRemiti("House fellowship offering",1,"table")
+    amountRemiti("African mission",1,"table")
+    amountRemiti("Annual report",1,"table")
+    amountRemiti("Annual thanksgiving",1,"table")
+    amountRemiti("Audit S/F",1,"table")
+    amountRemiti("Baptismal certificate",1,"table")
+    amountRemiti("Building dev offering",1,"table")
+    amountRemiti("Camp clearing",1,"table")
+    amountRemiti("Children zeal",1,"table")
+    amountRemiti("Conference manual",1,"table")
+    amountRemiti("Congress program",1,"table")
+    amountRemiti("Congress support",1,"table")
+    amountRemiti("Congress thanksgiving",1,"table")
+    amountRemiti("Convention offering",1,"table")
+    amountRemiti("Convention prog",1,"table")
+    amountRemiti("Convention special thanksgiving",1,"table")
+    amountRemiti("Convention support",1,"table")
+    amountRemiti("Convention thanksgiving",1,"table")
+    amountRemiti("Counselor support",1,"table")
+    amountRemiti("Family weekend",1,"table")
+    amountRemiti("First born redemption",1,"table")
+    amountRemiti("GO anniversary thanksgiving",1,"table")
+    amountRemiti("H/G service viewing centre offering",1,"table")
+    amountRemiti("Helps weekend",.85,"table")
+    amountRemiti("Holy communion offering",1,"table")
+    amountRemiti("Let's go a fishing",1,"table")
+    amountRemiti("Marriage certificate",1,"table")
+    amountRemiti("Minister's conference",1,"table")
+    amountRemiti("Minister's new auditorium offering",1,"table")
+    amountRemiti("Mission support",1,"table")
+    amountRemiti("New auditorium",1,"table")
+    amountRemiti("Pledges/Vow/Covenant Seed",1,"table")
+    amountRemiti("Project offering",1,"table")
+    amountRemiti("Provincial convention support",1,"table")
+    amountRemiti("Province CSR support",1,"table")
+    amountRemiti("Province programme offering",1,"table")
+    amountRemiti("Radio and TV",1,"table")
+    amountRemiti("RCCG Partner",1,"table")
+    amountRemiti("Regional contribution",1,"table")
+    amountRemiti("Send Forth/ Pastors' welfare",1,"table")
+    amountRemiti("Special Holy Ghost Service support",1,"table")
+    amountRemiti("Training weekend",1,"table")
+    totalRemiti(array1i)
+    amountRemiti("Sunday love offering",.20,"item")
+    amountRemiti("CRM",.25,"item")
+    amountRemiti("Thanksgiving",.5,"item")
+    totalRemiti(array2i)
+    amountRemiti("Convention volunteer",1,"fixed")
+    amountRemiti("Open Heaven Devotional",1,"fixed")
+    amountRemiti("CSR support",1,"fixed")
+    amountRemiti("RMF",1,"fixed")
+    amountRemiti("RUN Educational Fund",1,"fixed")
+    totalRemiti(array3i)
+    tRebatei()
+    amountRemiti("Area levies (welfare)",1,"levies")
+    amountRemiti("Area levies (let's go a fishing)",1,"levies")
+    totalRemiti(array4i)
+    let result = absoluteTotali()
+    return result
+  }
       //TO gET TOTAL AMOUNT FOR THE AMOUNT TYPE
       const amountTotalWeek = (name)=>{
         let totalAmount=0
@@ -1000,6 +1267,7 @@ if((recPeriod===period)&&(recWeek===compWeek)&&(recSection==="offerings")){
 return totalAmount
 }
 
+
 //state for table week
 const [week, setWeek] = useState();
 //state to check if week set
@@ -1035,7 +1303,8 @@ name="Higher Ground"/>
     <div className="img"/>
 <h1>Welcome to the rccg records system</h1>
 </div>
-<p className="introtext">What would you like to do?</p>
+<p className="introtext">Rebate balance: {rebateIntro()} <br/> Total to remit: {introRemitCalc()}</p>
+
 <div className="buttons">
 <HashLink smooth to='/home/#main-form' ><div className="button">data entry</div></HashLink>
 <HashLink smooth to='/home/#reports' ><div className="button">view report</div></HashLink>
@@ -1322,6 +1591,42 @@ name="Higher Ground"/>
     }
    
     
+    
+    </form>
+    <form className="mini-form" action="submit" >
+    <div className="title">
+    <h3>Rebate  <span>(please fill all the fields)</span></h3>
+    <span className="line"/>
+    </div>
+    <div className="form">
+<div className="input">
+<h4>Date</h4>
+<input type="date" id="date-rebate" placeholder="Date:"/>
+</div>
+<div className="input">
+<h4>Description</h4>
+<input  id="desc-rebate" placeholder="Short description"/>
+</div>
+<div className="input">
+<h4>Transaction type</h4>
+<select name="Transtype" id="transty-rebate">
+  <option value="not valid">--Select a transaction type--</option>
+  <option value="Income">Income</option>
+  <option value="Withdrawal">Withdrawal</option>
+</select>
+
+</div>
+<div className="input">
+<h4>Amount</h4>
+<input type="number" id="amount-rebate" placeholder="Amount"/>
+</div>
+    </div>
+    {
+        isFetched &&
+        <button onClick={rebateSubmit}>Submit</button>
+    }
+    
+
     
     </form>
 
@@ -1887,7 +2192,7 @@ remitAmount={amountRemit("RUN Educational Fund",1,"fixed")}
     <th>Amount</th>
     <th></th>
     <th></th>
-    <th>{absoluteTotal()}</th>
+    <th id="finRemit">{absoluteTotal()}</th>
   </tr>
   </>
 }
@@ -1977,6 +2282,22 @@ isFetched &&
 {isFetched &&
 <>
 {generalRecords()}
+</>
+}
+</>
+<>
+<tr><td id="type">Total Rebate</td></tr>
+<tr>
+          <td>Date</td>
+          <td>Description</td>
+          <td>Income</td>
+          <td>Withdrawal</td>
+          <td>Balance</td>
+         </tr>
+{isFetched &&
+<>
+{rebateRecords()}
+{rebateBalance()}
 </>
 }
 </>
@@ -2447,6 +2768,7 @@ color:${darkColor} ;
     .introtext{
 font-size:31px ;
 margin-top:52px ;
+
     }
     .buttons{
         width: 714px;
@@ -2795,6 +3117,7 @@ table{
     .introtext{
       font-size:25px ;
       font-family: 'Helvetica Neu Bold', sans-serif;
+      text-align:center ;
     }
 
   .buttons{
