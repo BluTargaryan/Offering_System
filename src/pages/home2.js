@@ -1330,7 +1330,7 @@ name="power sanctuary"/>
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just recordsdu">No event, just recordsdu</option>
+  <option value="No event, just records">No event, just records</option>
 </select>
 
 </div>
@@ -1457,7 +1457,7 @@ name="power sanctuary"/>
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just recordsdu">No event, just recordsdu</option>
+  <option value="No event, just records">No event, just records</option>
 </select>
 
 </div>
@@ -1638,7 +1638,7 @@ name="power sanctuary"/>
 <div id="reports">
     <div className="report-section">
     <h2>View report</h2>
-    <p>Put in the week number and click <span>LOAD</span> to generate weekly report. Click <span>EDIT</span> to edit recordsdu.</p>
+    <p>Put in the week number and click <span>LOAD</span> to generate weekly report. Click <span>EDIT</span> to edit records.</p>
     <div className="settings">
 <h4>Week:</h4>
 <input id="week-selector" type="number"/>
@@ -1650,7 +1650,7 @@ name="power sanctuary"/>
       {weekset &&
       <table >
       <tbody>
-      <tr><td id="type">Offering recordsdu (Week {week})</td></tr>
+      <tr><td id="type">Offering records (Week {week})</td></tr>
         <tr><td id="title">Offerings</td></tr>
         <tr>
     <th>Item Name</th>
@@ -1711,7 +1711,7 @@ name="power sanctuary"/>
 </tr>
    </>
 }
-<tr><td id="type">Attendance recordsdu</td></tr>
+<tr><td id="type">Attendance records</td></tr>
 <tr><td id="title">Week {week}</td></tr>
 <tr>
     <th>Event</th>
@@ -1740,7 +1740,7 @@ isFetched &&
 <table ref={tableRef}>
     <tbody>
       <>
-        <tr><td id="type">Offering recordsdu</td></tr>
+        <tr><td id="type">Offering records</td></tr>
         <tr><td id="title">Offerings</td></tr>
 <tr>
     <th>Item Name</th>
@@ -2199,7 +2199,7 @@ remitAmount={amountRemit("RUN Educational Fund",1,"fixed")}
 </>
 
 <>
-<tr><td id="type">Attendance recordsdu</td></tr>
+<tr><td id="type">Attendance records</td></tr>
 <tr><td id="title">Week 1</td></tr>
 <tr>
     <th>Event</th>
@@ -2278,7 +2278,7 @@ isFetched &&
 }
 </>
 <>
-<tr><td id="type">General recordsdu</td></tr>
+<tr><td id="type">General records</td></tr>
 {isFetched &&
 <>
 {generalRecords()}
@@ -2359,7 +2359,7 @@ isFetched &&
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just recordsdu">No event, just recordsdu</option>
+  <option value="No event, just records">No event, just records</option>
 </select>
 
 </div>
@@ -2410,7 +2410,7 @@ isFetched &&
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just recordsdu">No event, just recordsdu</option>
+  <option value="No event, just records">No event, just records</option>
 </select>
 
 </div>
@@ -2539,7 +2539,7 @@ isFetched &&
   <option value="Tuesday service">Tuesday service</option>
   <option value="Thursday service">Thursday service</option>
   <option value="Friday night vigil">Friday night vigil</option>
-  <option value="No event, just recordsdu">No event, just recordsdu</option>
+  <option value="No event, just records">No event, just records</option>
 </select>
 
 </div>
