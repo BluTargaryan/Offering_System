@@ -14,8 +14,8 @@ import TableItem from "../comps/tableitem";
 import TableLevies from "../comps/tablelevies";
 import TableWeek from "../comps/tableweek"
 import SimpleDateTime  from 'react-simple-timestamp-to-date';
-
-
+import up from '../img/up.png'
+import useIntersection from '../comps/useIntersection'
 
 
 
@@ -33,9 +33,11 @@ const Home = ()=>{
    const [period, setPeriod] = useState(0)
     //TO handle table section
     const tableRef = useRef(null);
-    //
+    //state to check if intro is visible
+    const introRef = useRef(null);
 
-
+    const inViewport = useIntersection(introRef, '-200px');
+ 
 
     const { onDownload } = useDownloadExcel({
         currentTableRef: tableRef.current,
@@ -102,6 +104,14 @@ const generatePeriod = async()=>{
    }
    }
   })
+  useEffect(()=>{
+    if (inViewport) {
+      document.getElementById('arrow').style.display="none"
+  }
+    if (!inViewport) {
+      document.getElementById("arrow").style.display="initial"
+  }
+   })
 
 
   
@@ -1086,7 +1096,7 @@ return(
         let per= records[x].data.period
         let date= records[x].data.date.toDate()
         
-        if((section==="rebate")&&(period==per)){
+        if((section==="rebate")&&(period===per)){
         if(type==="Income"){
           incomeArr2.push(amount)
        
@@ -1300,8 +1310,11 @@ isWeekSet(false)
         <StyledHome>
 <Nav2
 name="power and glory"/>
-<Main>
-<div className="intro"  id="buttons">
+<Main id="main">
+  <Up id="arrow">
+  <HashLink smooth to='/home/#main' ><img src={up} alt="up arrow" /></HashLink>
+  </Up>
+<div className="intro"  id="buttons" ref={introRef}>
 <div className="welcome">
     <div className="img"/>
 <h1>Welcome to the rccg records system</h1>
@@ -2289,7 +2302,7 @@ isFetched &&
 }
 </>
 <>
-<tr><td id="type">Total Rebate</td></tr>
+<tr><td id="type">Rebate account</td></tr>
 <tr>
           <td>Date</td>
           <td>Description</td>
@@ -2699,7 +2712,7 @@ padding-bottom:216px ;
 position:relative ;
 
 @media only screen and (max-width: 480px){
-  padding-bottom:45px ;
+  padding-bottom:150px ;
 }
 
 `
@@ -3750,6 +3763,32 @@ height:100% ;
 }
     }
   }
+}
+
+`
+const Up = styled(motion.div)`
+width:40px;
+height:auto ;
+position:fixed;
+bottom:0 ;
+right:0 ;
+z-index:3;
+padding:0 ;
+margin-right:50px ;
+margin-bottom:50px ;
+a{
+  img{
+  width:100% ;
+  height:auto ;
+  margin:auto 0 ;
+}
+}
+@media only screen and (max-width: 480px){
+  margin-right:20px ;
+margin-bottom:20px ;
+}
+@media only screen and (min-width: 481px) and (max-width: 768px){
+  width:50px;
 }
 
 `
