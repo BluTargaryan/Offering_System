@@ -398,253 +398,235 @@ try{
         document.getElementById('specifier').style.display="flex"
     }
     const editTableFunction = () =>{
-        let specDownEvent = document.getElementById('specEvent').value
-        specEvent=document.getElementById('specEvent').value
-        let specDownDate = new Date(document.getElementById('specDate').value)
-        specDate=new Date(document.getElementById('specDate').value).toLocaleDateString()
-        specSection=document.getElementById('specSection').value
-        document.getElementById('specifier').style.display="none"
+      let specDownEvent = document.getElementById('specEvent').value
+      specEvent=document.getElementById('specEvent').value
+      let specDownDate = new Date(document.getElementById('specDate').value)
+      specDate=new Date(document.getElementById('specDate').value).toLocaleDateString()
+      specSection=document.getElementById('specSection').value
+      document.getElementById('specifier').style.display="none"
 
-        //to set deletion id
-        for(let x=0;x<records2.length;x++){
-            let testDate = records2[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records2[x].data.event
-            let testSection = records2[x].data.section
-            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                denoteId=records2[x].id
-                break
-            }
-           
-        }
-        if(specSection==="offerings"){
-            //clear inputs
-            document.getElementById('specEvent').selectedIndex=0
-            document.getElementById('specDate').value=""
-            document.getElementById('specSection').selectedIndex=0
-            //setup pre data
-           let id
-            for(let x=0;x<records2.length;x++){
-                let testDate = records2[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records2[x].data.event
-                let testSection = records2[x].data.section
-                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    id=records2[x].id
-                    break
-                }  
-            }
-            //to detern=mine index of select to set for event
-            let select=document.getElementById("worker-event").options
-            let select_length = select.length
-            let eventIndex
-            for(let x=0;x<select_length;x++){
-                if((select[x].text===specEvent)){
-                    eventIndex=x
-                    break
-                }
-            }
-            document.getElementById('worker-event').selectedIndex=eventIndex
-            //to detern=mine index of select to set for week
-            let week_select=document.getElementById("worker-week").options
-            let week_select_length = select.length
-            let weekIndex
-
-            for(let x=0;x<records2.length;x++){
-                let recWeek=records2[x].data.week
-                let isEqual = false
-                for(let x=0;x<week_select_length;x++){
-                if(parseInt(week_select[x].text)===recWeek){
-                    weekIndex=x
-                    isEqual=true
-                    break
-                }
-                if(isEqual===true){break}
-                }
-                
-            }
-            
-            document.getElementById('worker-week').selectedIndex=weekIndex
-              //set date
-              document.getElementById('worker-date').value=specDownDate.toISOString().substring(0,10)
-              //set amount
-
-              for(let x=0;x<records2.length;x++){
-                let testDate = records2[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records2[x].data.event
-                let testSection = records2[x].data.section
-                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    document.getElementById('worker-amount').value=records2[x].data.amount
-                    break
-                }
-               
-            }
-            //set offering type
-
-            for(let x=0;x<records2.length;x++){
-                let testDate = records2[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records2[x].data.event
-                let testSection = records2[x].data.section
-                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    document.getElementById('worker-type').value=records2[x].data.type
-                    break
-                }
-               
-            }
-
-            //set payment type
-
-            for(let x=0;x<records2.length;x++){
-                let testDate = records2[x].data.date.toDate().toLocaleDateString()
-                let testEvent = records2[x].data.event
-                let testSection = records2[x].data.section
-                if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                    document.getElementById('worker-payment').value=records2[x].data.payment_type
-                    break
-                }
-               
-            }
-
-            //hide 
-            document.getElementById('worker').style.display="flex"
-        }
-        if(specSection==="attendance"){
-             //clear inputs
-             document.getElementById('specEvent').selectedIndex=0
-             document.getElementById('specDate').value=""
-             document.getElementById('specSection').selectedIndex=0
-         //to detern=mine index of select to set for event
-         let select=document.getElementById("worked-event").options
-         let select_length = select.length
-         let eventIndex
-         for(let x=0;x<select_length;x++){
-             if((select[x].text===specEvent)){
-                 eventIndex=x
-                 break
-             }
-         }
-         document.getElementById('worked-event').selectedIndex=eventIndex
-         //to detern=mine index of select to set for week
-         let week_select=document.getElementById("worked-week").options
-         let week_select_length = select.length
-         let weekIndex
-
-         for(let x=0;x<records2.length;x++){
-             let recWeek=records2[x].data.week
-             let isEqual = false
-             for(let x=0;x<week_select_length;x++){
-             if(parseInt(week_select[x].text)===recWeek){
-                 weekIndex=x
-                 isEqual=true
-                 break
-             }
-             if(isEqual===true){break}
-             }
-             
-         }
-         
-         document.getElementById('worked-week').selectedIndex=weekIndex
-           //set date
-           document.getElementById('worked-date').value=specDownDate.toISOString().substring(0,10)
-           //set men
-           for(let x=0;x<records2.length;x++){
-             let testDate = records2[x].data.date.toDate().toLocaleDateString()
-             let testEvent = records2[x].data.event
-             let testSection = records2[x].data.section
-             if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                 document.getElementById('worked-men').value=records2[x].data.men
-                 break
-             }
-            
-         }
-          //set women
-          for(let x=0;x<records2.length;x++){
-            let testDate = records2[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records2[x].data.event
-            let testSection = records2[x].data.section
-            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-women').value=records2[x].data.women
-                break
-            }
-           
-        }
-         //set children
-         for(let x=0;x<records2.length;x++){
-            let testDate = records2[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records2[x].data.event
-            let testSection = records2[x].data.section
-            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-children').value=records2[x].data.children
-                break
-            }
-           
-        }
-         //set newcomer
-         for(let x=0;x<records2.length;x++){
-            let testDate = records2[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records2[x].data.event
-            let testSection = records2[x].data.section
-            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-newcomers').value=records2[x].data.newcomer
-                break
-            }
-           
-        }
-        //set convert
-        for(let x=0;x<records2.length;x++){
-            let testDate = records2[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records2[x].data.event
-            let testSection = records2[x].data.section
-            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-converts').value=records2[x].data.convert
-                break
-            }
-           
-        }
-
-
- 
-
-
-
-
-            document.getElementById('worked').style.display="flex"
-        }
-        if(specSection==="general"){
-    //clear inputs
-    document.getElementById('specEvent').selectedIndex=0
-    document.getElementById('specDate').value=""
-    document.getElementById('specSection').selectedIndex=0
-
-      //set date
-      document.getElementById('general-date').value=specDownDate.toISOString().substring(0,10)
-      //set all data
+      //to set deletion id
       for(let x=0;x<records2.length;x++){
-        let testDate = records2[x].data.date.toDate().toLocaleDateString()
-        let testEvent = records2[x].data.event
-        let testSection = records2[x].data.section
-        if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-            document.getElementById('general-births').value=records2[x].data.births
-            document.getElementById('general-deaths').value=records2[x].data.deaths
-            document.getElementById('general-marriages').value=records2[x].data.marriages
-            document.getElementById('general-converts').value=records2[x].data.converts
-            document.getElementById('general-firsttimers').value=records2[x].data.firsttimers
-            document.getElementById('general-workers').value=records2[x].data.evang_workers_inattendance
-            document.getElementById('general-souls').value=records2[x].data.souls_won
-            document.getElementById('general-hcentres').value=records2[x].data.house_fellowship_centres
-            document.getElementById('general-uminst').value=records2[x].data.unordained_ministers
-            document.getElementById('general-nmembers').value=records2[x].data.newly_baptised_members
-            document.getElementById('general-asp').value=records2[x].data.avg_sp_attendance
-            document.getElementById('general-anv').value=records2[x].data.avg_nv_attendance
-            document.getElementById('general-bw').value=records2[x].data.baptised_workers
-            document.getElementById('general-deacons').value=records2[x].data.deacons
-            document.getElementById('general-apastor').value=records2[x].data.asst_pastors
-            document.getElementById('general-fpastor').value=records2[x].data.full_pastors
-            document.getElementById('general-nworkers').value=records2[x].data.newly_baptised_workers
-            break
-        } 
-    }
-    document.getElementById('general').style.display="flex"
-        }
-    }
+          let testDate = records2[x].data.date.toDate().toLocaleDateString()
+          let testEvent = records2[x].data.event
+          let testSection = records2[x].data.section
+          if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+              denoteId=records2[x].id
+              break
+          }
+         
+      }
+      if(specSection==="offerings"){
+          //clear inputs
+          document.getElementById('specEvent').selectedIndex=0
+          document.getElementById('specDate').value=""
+          document.getElementById('specSection').selectedIndex=0
+          //setup pre data
+         let id
+          for(let x=0;x<records2.length;x++){
+              let testDate = records2[x].data.date.toDate().toLocaleDateString()
+              let testEvent = records2[x].data.event
+              let testSection = records2[x].data.section
+              if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                  id=records2[x].id
+                  break
+              }  
+          }
+          //to detern=mine index of select to set for event
+          let select=document.getElementById("worker-event").options
+          let select_length = select.length
+          let eventIndex
+          for(let x=0;x<select_length;x++){
+              if((select[x].text===specEvent)){
+                  eventIndex=x
+                  break
+              }
+          }
+          document.getElementById('worker-event').selectedIndex=eventIndex
+          //to detern=mine index of select to set for week
+          let week_select=document.getElementById("worker-week").options
+          let week_select_length = select.length
+          let weekIndex
+          
+
+          for(let x=0;x<records2.length;x++){
+              let recWeek=records2[x].data.week
+              let isEqual = false
+              for(let x=0;x<week_select_length;x++){
+                
+              if(parseInt(week_select[x].text)===recWeek){
+                console.log(week_select[x].text)
+                  weekIndex=x
+                  isEqual=true
+                  break
+              }
+              
+              }
+              if(isEqual===true){break} 
+          }
+          
+          document.getElementById('worker-week').selectedIndex=weekIndex
+            //set date
+            document.getElementById('worker-date').value=specDownDate.toISOString().substring(0,10)
+            //set amount
+
+            for(let x=0;x<records2.length;x++){
+              let testDate = records2[x].data.date.toDate().toLocaleDateString()
+              let testEvent = records2[x].data.event
+              let testSection = records2[x].data.section
+              if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                  document.getElementById('worker-amount').value=records2[x].data.amount
+                  break
+              }
+             
+          }
+
+
+          for(let x=0;x<records2.length;x++){
+              let testDate = records2[x].data.date.toDate().toLocaleDateString()
+              let testEvent = records2[x].data.event
+              let testSection = records2[x].data.section
+              if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                  document.getElementById('worker-type').value=records2[x].data.type
+                  break
+              }
+             
+          }
+
+          //set payment type
+
+          for(let x=0;x<records2.length;x++){
+              let testDate = records2[x].data.date.toDate().toLocaleDateString()
+              let testEvent = records2[x].data.event
+              let testSection = records2[x].data.section
+              if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+                  document.getElementById('worker-payment').value=records2[x].data.payment_type
+                  break
+              }
+             
+          }
+
+          //hide 
+          document.getElementById('worker').style.display="flex"
+      }
+      if(specSection==="attendance"){
+           //clear inputs
+           document.getElementById('specEvent').selectedIndex=0
+           document.getElementById('specDate').value=""
+           document.getElementById('specSection').selectedIndex=0
+       //to detern=mine index of select to set for event
+       let select=document.getElementById("worked-event").options
+       let select_length = select.length
+       let eventIndex
+       for(let x=0;x<select_length;x++){
+           if((select[x].text===specEvent)){
+               eventIndex=x
+               break
+           }
+       }
+       document.getElementById('worked-event').selectedIndex=eventIndex
+       //to detern=mine index of select to set for week
+       let week_select=document.getElementById("worked-week").options
+       let week_select_length = select.length
+       let weekIndex
+
+       for(let x=0;x<records2.length;x++){
+           let recWeek=records2[x].data.week
+           let isEqual = false
+           for(let x=0;x<week_select_length;x++){
+           if(parseInt(week_select[x].text)===recWeek){
+               weekIndex=x
+               isEqual=true
+               break
+           }
+           
+           }
+           if(isEqual===true){break}
+       }
+       
+       document.getElementById('worked-week').selectedIndex=weekIndex
+         //set date
+         document.getElementById('worked-date').value=specDownDate.toISOString().substring(0,10)
+         //set men
+         for(let x=0;x<records2.length;x++){
+           let testDate = records2[x].data.date.toDate().toLocaleDateString()
+           let testEvent = records2[x].data.event
+           let testSection = records2[x].data.section
+           if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+               document.getElementById('worked-men').value=records2[x].data.men
+               break
+           }
+          
+       }
+        //set women
+        for(let x=0;x<records2.length;x++){
+          let testDate = records2[x].data.date.toDate().toLocaleDateString()
+          let testEvent = records2[x].data.event
+          let testSection = records2[x].data.section
+          if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+              document.getElementById('worked-women').value=records2[x].data.women
+              break
+          }
+         
+      }
+       //set children
+       for(let x=0;x<records2.length;x++){
+          let testDate = records2[x].data.date.toDate().toLocaleDateString()
+          let testEvent = records2[x].data.event
+          let testSection = records2[x].data.section
+          if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+              document.getElementById('worked-children').value=records2[x].data.children
+              break
+          }
+         
+      }
+     
+
+
+
+
+
+
+
+          document.getElementById('worked').style.display="flex"
+      }
+      if(specSection==="general"){
+  //clear inputs
+  document.getElementById('specEvent').selectedIndex=0
+  document.getElementById('specDate').value=""
+  document.getElementById('specSection').selectedIndex=0
+
+    //set date
+    document.getElementById('general-date').value=specDownDate.toISOString().substring(0,10)
+    //set all data
+    for(let x=0;x<records2.length;x++){
+      let testDate = records2[x].data.date.toDate().toLocaleDateString()
+      let testEvent = records2[x].data.event
+      let testSection = records2[x].data.section
+      if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
+          document.getElementById('general-births').value=records2[x].data.births
+          document.getElementById('general-deaths').value=records2[x].data.deaths
+          document.getElementById('general-marriages').value=records2[x].data.marriages
+          document.getElementById('general-converts').value=records2[x].data.converts
+          document.getElementById('general-firsttimers').value=records2[x].data.firsttimers
+          document.getElementById('general-workers').value=records2[x].data.evang_workers_inattendance
+          document.getElementById('general-souls').value=records2[x].data.souls_won
+          document.getElementById('general-hcentres').value=records2[x].data.house_fellowship_centres
+          document.getElementById('general-uminst').value=records2[x].data.unordained_ministers
+          document.getElementById('general-nmembers').value=records2[x].data.newly_baptised_members
+          document.getElementById('general-asp').value=records2[x].data.avg_sp_attendance
+          document.getElementById('general-anv').value=records2[x].data.avg_nv_attendance
+          document.getElementById('general-bw').value=records2[x].data.baptised_workers
+          document.getElementById('general-deacons').value=records2[x].data.deacons
+          document.getElementById('general-apastor').value=records2[x].data.asst_pastors
+          document.getElementById('general-fpastor').value=records2[x].data.full_pastors
+          document.getElementById('general-nworkers').value=records2[x].data.newly_baptised_workers
+          break
+      } 
+  }
+  document.getElementById('general').style.display="flex"
+      }
+  }
     const editSubmitFunction = () =>{
         if(specSection==="attendance"){
             let id
@@ -681,8 +663,6 @@ try{
           document.getElementById('worked-men').value=""
           document.getElementById('worked-women').value=""
           document.getElementById('worked-children').value=""
-          document.getElementById('worked-newcomers').value=""
-          document.getElementById('worked-converts').value=""
 
           document.getElementById('worked').style.display="none"
         }
@@ -1311,9 +1291,9 @@ isWeekSet(false)
         <StyledHome>
 <Nav2
 name="great shepherd"/>
-<Main>
+<Main id="main">
    <Up id="arrow">
-  <HashLink smooth to='/home/#main' ><img src={up} alt="up arrow" /></HashLink>
+  <HashLink smooth to='/home3/#main' ><img src={up} alt="up arrow" /></HashLink>
   </Up>
 <div className="intro"  id="buttons" ref={introRef3}>
 <div className="welcome">

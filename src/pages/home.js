@@ -446,19 +446,22 @@ try{
             let week_select=document.getElementById("worker-week").options
             let week_select_length = select.length
             let weekIndex
+            
 
             for(let x=0;x<records.length;x++){
                 let recWeek=records[x].data.week
                 let isEqual = false
                 for(let x=0;x<week_select_length;x++){
+                  
                 if(parseInt(week_select[x].text)===recWeek){
+                  console.log(week_select[x].text)
                     weekIndex=x
                     isEqual=true
                     break
                 }
-                if(isEqual===true){break}
-                }
                 
+                }
+                if(isEqual===true){break} 
             }
             
             document.getElementById('worker-week').selectedIndex=weekIndex
@@ -476,7 +479,7 @@ try{
                 }
                
             }
-            //set offering type
+
 
             for(let x=0;x<records.length;x++){
                 let testDate = records[x].data.date.toDate().toLocaleDateString()
@@ -535,9 +538,9 @@ try{
                  isEqual=true
                  break
              }
-             if(isEqual===true){break}
+            
              }
-             
+             if(isEqual===true){break}
          }
          
          document.getElementById('worked-week').selectedIndex=weekIndex
@@ -576,28 +579,7 @@ try{
             }
            
         }
-         //set newcomer
-         for(let x=0;x<records.length;x++){
-            let testDate = records[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records[x].data.event
-            let testSection = records[x].data.section
-            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-newcomers').value=records[x].data.newcomer
-                break
-            }
-           
-        }
-        //set convert
-        for(let x=0;x<records.length;x++){
-            let testDate = records[x].data.date.toDate().toLocaleDateString()
-            let testEvent = records[x].data.event
-            let testSection = records[x].data.section
-            if((testDate===specDate)&&(testEvent===specEvent)&&(testSection===specSection)){
-                document.getElementById('worked-converts').value=records[x].data.convert
-                break
-            }
-           
-        }
+       
 
 
  
@@ -680,8 +662,7 @@ try{
           document.getElementById('worked-men').value=""
           document.getElementById('worked-women').value=""
           document.getElementById('worked-children').value=""
-          document.getElementById('worked-newcomers').value=""
-          document.getElementById('worked-converts').value=""
+
 
           document.getElementById('worked').style.display="none"
         }
@@ -2454,7 +2435,7 @@ isFetched &&
 <div className="input">
 <h4>Offering type</h4>
 <select name="cars" id="worker-type">
-<option value="volvo">--Please pick an offering type--</option>
+<option value="not valid">--Please pick an offering type--</option>
   <option value="General tithe">General tithe</option>
   <option value="Minister's tithe">Minister's tithe</option>
   <option value="Sunday love offering">Sunday love offering</option>
